@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 #there's 321 features in the dataset
 def load_data(x_dataset_path, y_dataset_path, max_rows=None):
@@ -11,3 +12,32 @@ def load_data(x_dataset_path, y_dataset_path, max_rows=None):
 
     return x, y
 
+
+#==========================Plotting==========================#
+def scatter_plot():
+    ...
+
+def line_plot():
+    ...
+
+def line_and_scatter_plot(y, tx, w):
+    plt.scatter(tx[:,0], y, c='r')
+    plt.plot(tx[:, 0], tx @ w)
+    plt.show()
+
+
+#====================Generate Random Data====================#
+def generate_linear_data_with_gaussian_noise(N, d) :
+
+    transform = np.random.rand((d)) * 2 - 1 # linear function mapping a d long feature vector on a number
+    #print(f"transform = {transform}")
+
+    X_f = 10.0
+    X = np.random.normal(size=(N, d)) * X_f
+
+    noise_f = 6
+    noise = np.random.normal(size=N) * noise_f * np.linalg.norm(transform)
+
+    y = transform @ X.T + noise # labels
+
+    return y, X

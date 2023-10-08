@@ -19,9 +19,11 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
 
     w = initial_w
 
-    for _ in range(max_iters):
-        gradient, _ = compute_MSE_gradient_and_loss(y, tx, w)
+    for n_iter in range(max_iters):
+        gradient, loss = compute_MSE_gradient_and_loss(y, tx, w)
         w = w - gamma * gradient
+
+        #print(f"iter {n_iter} : loss = {loss}")
 
     _, loss = compute_MSE_gradient_and_loss(y, tx, w)
 
@@ -48,10 +50,12 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
 
     w = initial_w
 
-    for _ in range(max_iters):
+    for n_iter in range(max_iters):
         n = np.random.randint(0, N)
-        gradient, _ = compute_MSE_gradient_and_loss(y[n], tx[n], w)
+        gradient, loss = compute_MSE_gradient_and_loss(y[[n]], tx[[n]], w)
         w = w - gamma * gradient
+
+        #print(f"iter {n_iter} : loss = {loss}")
 
     _, loss = compute_MSE_gradient_and_loss(y, tx, w)
 
@@ -59,7 +63,9 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
 
 
 def least_squares(y, tx):
-    ...
+    w_opt = np.linalg.inv(tx.T @ tx) @ tx.T @ y
+    _, loss = compute_MSE_gradient_and_loss(y, tx, w_opt)
+    return loss, w_opt
 
 def ridge_regression(y, tx, lambda_):
     ...

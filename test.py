@@ -36,13 +36,48 @@ def test_compute_MSE_gradient_and_loss():
     assert (np.isclose(gradient, true_gradient)).all() and np.isclose(true_loss, loss)
     print("    -compute_MSE_gradient_and_loss test passed!")
 
+def test_mean_squared_error_gd_or_sgd(stochastic=False):
+
+    (N, d) = (1000, 1)
+
+    y, X = utils.generate_linear_data_with_gaussian_noise(N, d)
+
+    initial_w = np.zeros(d)
+
+    #print(f"xshape = {X.shape}, y.shape = {y.shape}, w.shape = {initial_w.shape}")
+    loss, w = implementations.mean_squared_error_sgd(y, X, initial_w, 100, 0.002) if stochastic else implementations.mean_squared_error_gd(y, X, initial_w, 30, 0.01)
+
+    #print(f"final loss : {loss}")
+    #print(f"final w : {w}")
+    utils.line_and_scatter_plot(y, X, w)
+    print(f"    -mean_squared_error_{'sgd' if stochastic else 'gd'} test passed!")
+
+def test_least_squares():
+
+    (N, d) = (1000, 1)
+
+    y, X = utils.generate_linear_data_with_gaussian_noise(N, d)
+
+    #print(f"xshape = {X.shape}, y.shape = {y.shape}, w.shape = {initial_w.shape}")
+    loss, w = implementations.least_squares(y, X)
+
+    #print(f"final loss : {loss}")
+    #print(f"final w : {w}")
+    utils.line_and_scatter_plot(y, X, w)
+    print(f"    -least_squares test passed!")
+
 
 def run_all_tests():
     test_load_data()
     test_compute_MSE_gradient_and_loss()
+    test_mean_squared_error_gd_or_sgd(stochastic=False)
+    test_mean_squared_error_gd_or_sgd(stochastic=True)
+    test_least_squares()
 
     print("-> All test passed!!")
 
 
 
-run_all_tests()
+#run_all_tests()
+
+test_least_squares()
