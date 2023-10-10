@@ -67,8 +67,13 @@ def least_squares(y, tx):
     _, loss = compute_MSE_gradient_and_loss(y, tx, w_opt)
     return loss, w_opt
 
+
 def ridge_regression(y, tx, lambda_):
-    ...
+    N = y.shape[0]
+    d = tx.shape[1]
+    w_opt = np.linalg.inv(tx.T @ tx + (lambda_ * 2 * N) * np.identity(d)) @ tx.T @ y
+    _, loss = compute_MSE_gradient_and_loss(y, tx, w_opt)
+    return loss, w_opt
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
     ...

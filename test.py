@@ -61,10 +61,25 @@ def test_least_squares():
     #print(f"xshape = {X.shape}, y.shape = {y.shape}, w.shape = {initial_w.shape}")
     loss, w = implementations.least_squares(y, X)
 
-    #print(f"final loss : {loss}")
+    print(f"     ls final loss : {loss}")
     #print(f"final w : {w}")
     utils.line_and_scatter_plot(y, X, w)
     print(f"    -least_squares test passed!")
+
+
+def test_ridge_regression():
+
+    (N, d) = (1000, 1)
+
+    y, X = utils.generate_linear_data_with_gaussian_noise(N, d)
+    lambda_ = 1.0
+
+    loss, w = implementations.ridge_regression(y, X, lambda_)
+
+    print(f"     rr final loss : {loss}")
+    #print(f"final w : {w}")
+    utils.line_and_scatter_plot(y, X, w)
+    print(f"    -ridge_regression test passed!")
 
 
 def run_all_tests():
@@ -73,11 +88,13 @@ def run_all_tests():
     test_mean_squared_error_gd_or_sgd(stochastic=False)
     test_mean_squared_error_gd_or_sgd(stochastic=True)
     test_least_squares()
+    test_ridge_regression()
 
     print("-> All test passed!!")
 
 
 
-#run_all_tests()
+run_all_tests()
 
-test_least_squares()
+#test_least_squares()
+#test_ridge_regression()
