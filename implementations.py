@@ -55,7 +55,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
         gradient, loss = compute_MSE_gradient_and_loss(y[[n]], tx[[n]], w)
         w = w - gamma * gradient
 
-        #print(f"iter {n_iter} : loss = {loss}")
+        print(f"iter {n_iter} : loss = {loss}")
 
     _, loss = compute_MSE_gradient_and_loss(y, tx, w)
 
@@ -82,7 +82,7 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         gradient, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
         w = w - gamma * gradient
 
-        #print(f"iter {n_iter} : loss = {loss}")
+        print(f"iter {n_iter} : loss = {loss}")
 
     _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
 
@@ -119,7 +119,7 @@ def compute_cross_entropy_gradient_and_loss(y, tx, w):
     #print(f"current w : {w}")
     h = 1. / (1. + np.exp(-tx@w))
 
-    gradient = (h - y) @ tx
+    gradient = (h - y) @ tx + 0.1 * w
     loss = -np.sum(y * np.log(h) + (1. - y) * np.log(1. - h)) / y.shape[0]
     #print(f"h:{h}, y.shape[0]:{y.shape[0]}")
     return gradient, loss

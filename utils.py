@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+#===========================Data Pre-Processing===========================#
+
 #there's 321 features in the dataset
 def load_data(x_dataset_path, y_dataset_path, max_rows=None, usecols=None):
     tx = np.genfromtxt(x_dataset_path, delimiter=",", skip_header=1, max_rows=max_rows, usecols=usecols)
@@ -29,18 +31,48 @@ def normalize(x):
     std_dev = np.std(x, axis=0)
     return (x - means) / std_dev
 
+def rows_with_all_features(x):
+    missing_elems = np.isnan(x)
+    return np.logical_not(missing_elems.any(axis=1))
+
 def remove_rows_with_missing_features(x, y):
 
-    lines_before = x.shape[0]
-    missing_elems = np.isnan(x)
-    #print(f"missing rows = {missing_elems}")
-    full_rows = np.logical_not(missing_elems.any(axis=1))
+    #lines_before = x.shape[0]
+    full_rows = rows_with_all_features(x)
     x = x[full_rows]
     y = y[full_rows]
-    #print(f"after non-nan : x = {x}")
-    print(f"before/after for N : ({lines_before}, {x.shape[0]})")
+    #print(f"before/after for N : ({lines_before}, {x.shape[0]})")
 
     return x,y
+
+def replace_missing_features_with_mean(x):
+    means = np.nanmean(x, axis=0)
+    return np.nan_to_num(x, nan=means)
+
+
+def build_poly(x, degree):
+    """polynomial basis functions for input data x, for j=0 up to j=degree.
+
+    Args:
+        x: numpy array of shape (N, d), N is the number of samples and d the number of features
+        degree: integer.
+
+    Returns:
+        poly: numpy array of shape (N, d'), where d' is the total number of polynomial features.
+        for example, with d=2, degree = 2, we have 1, f1, f2, f1 * f2, f1², f2², so 6 features
+    
+    TODO : find a general way of finding all the possible combinations for all degree and d.
+    NOTE : this function should have the advantage of handling the 1 column vector by setting degree=1
+    """
+
+
+    #N = x.shape[0]
+    # we want to build an N * d array [[0,...,d], ..., [0,...,d]] to broadcast power it with x
+    #exponents = np.arange(0, degree + 1)
+
+    #return x.reshape((N, 1)) ** exponents.reshape((1, degree + 1))
+
+    raise NotImplementedError()
 
 #==========================Plotting==========================#
 def scatter_plot():

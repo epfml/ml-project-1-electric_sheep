@@ -3,18 +3,6 @@ import implementations
 
 import numpy as np
 
-def test_load_data():
-    x, y = utils.load_data("dataset/x_train.csv", "dataset/y_train.csv", max_rows=20)
-
-    x = x[0:10]
-    y = y[0:10]
-
-    #print(f"x sample : {x[0:10]}")
-    #print(f"y sample : {y[0:10]}")
-
-    assert (y == np.array([0., 0., 0., 0., 0., 0., 1., 1., 0., 0.])).all()
-    print("    -load_data test passed!")
-
 def test_compute_MSE_gradient_and_loss():
     #say N=3 and d=2
     y = np.array([1.5, -0.5, 0.3])
@@ -82,6 +70,37 @@ def test_ridge_regression():
     print(f"    -ridge_regression test passed!")
 
 
+def test_load_data():
+    x, y = utils.load_data("dataset/x_train.csv", "dataset/y_train.csv", max_rows=20)
+
+    x = x[0:10]
+    y = y[0:10]
+
+    #print(f"x sample : {x[0:10]}")
+    #print(f"y sample : {y[0:10]}")
+
+    assert (y == np.array([0., 0., 0., 0., 0., 0., 1., 1., 0., 0.])).all()
+    print("    -load_data test passed!")
+
+def test_replace_missing_features_with_mean():
+    x = np.array([
+        [6.,        np.nan,     2.],
+        [np.nan,    np.nan,     3.],
+        [2.,        1.,         1.]
+    ])
+
+    x_f = utils.replace_missing_features_with_mean(x)
+    x_true = np.array([
+        [6.,    1.,    2.],
+        [4.,    1.,    3.],
+        [2.,    1.,    1.]
+    ])
+
+    assert np.array_equal(x_f, x_true)
+    print("    -replace_missing_features_with_mean test passed!")
+
+
+
 def run_all_tests():
     test_load_data()
     test_compute_MSE_gradient_and_loss()
@@ -94,7 +113,8 @@ def run_all_tests():
 
 
 
-run_all_tests()
+#run_all_tests()
 
 #test_least_squares()
 #test_ridge_regression()
+test_replace_missing_features_with_mean()
