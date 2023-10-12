@@ -5,11 +5,13 @@ import matplotlib.pyplot as plt
 def load_data(x_dataset_path, y_dataset_path, max_rows=None, usecols=None):
     tx = np.genfromtxt(x_dataset_path, delimiter=",", skip_header=1, max_rows=max_rows, usecols=usecols)
     y = np.genfromtxt(y_dataset_path, delimiter=",", skip_header=1, max_rows=max_rows)
-    # TODO use converters for text data. maybe missing_values/filling_values
+    # _TODO use converters for text data. maybe missing_values/filling_values (i think there's no text data)
     # converter example : converters={0: lambda x: 0 if b"Male" in x else 1},
-    # TODO maybe normalize the dataset (also convert to sensible unit if they're american), 
-    # extrapolate for the data we don't have, stuff like that
-    # TODO : maybe, add 1 column to x
+    # _TODO maybe normalize the dataset (also convert to sensible unit if they're american), PROBABLY DONE
+    # TODO : extrapolate for the data we don't have, stuff like that
+    # _TODO : maybe, add 1 column to x PROBABLY DONE
+    # TODO : remove outliers
+    # TODO : enrich with poly-feature expansion
 
     return tx, y
 
@@ -27,6 +29,19 @@ def normalize(x):
     std_dev = np.std(x, axis=0)
     return (x - means) / std_dev
 
+def remove_rows_with_missing_features(x, y):
+
+    lines_before = x.shape[0]
+    missing_elems = np.isnan(x)
+    #print(f"missing rows = {missing_elems}")
+    full_rows = np.logical_not(missing_elems.any(axis=1))
+    x = x[full_rows]
+    y = y[full_rows]
+    #print(f"after non-nan : x = {x}")
+    print(f"before/after for N : ({lines_before}, {x.shape[0]})")
+
+    return x,y
+
 #==========================Plotting==========================#
 def scatter_plot():
     ...
@@ -34,9 +49,10 @@ def scatter_plot():
 def line_plot():
     ...
 
-def line_and_scatter_plot(y, tx, w):
-    plt.scatter(tx[:,0], y, c='r')
-    plt.plot(tx[:, 0], tx @ w)
+def line_and_scatter_plot(y, tx, preds):
+    plt.scatter(tx[:, 1], y, c='r')
+    plt.scatter(tx[:, 1], preds, c='b')
+    #plt.plot(tx[:, 1], preds)
     plt.show()
 
 

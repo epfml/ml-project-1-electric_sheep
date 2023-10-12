@@ -76,7 +76,17 @@ def ridge_regression(y, tx, lambda_):
     return loss, w_opt
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
-    ...
+    w = initial_w
+
+    for n_iter in range(max_iters):
+        gradient, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
+        w = w - gamma * gradient
+
+        #print(f"iter {n_iter} : loss = {loss}")
+
+    _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
+
+    return loss, w
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     ...
@@ -104,6 +114,19 @@ def compute_MSE_gradient_and_loss(y, tx, w):
     gradient = - tx.T @ e / N
 
     return gradient, loss
+
+def compute_cross_entropy_gradient_and_loss(y, tx, w):
+    #print(f"current w : {w}")
+    h = 1. / (1. + np.exp(-tx@w))
+
+    gradient = (h - y) @ tx
+    loss = -np.sum(y * np.log(h) + (1. - y) * np.log(1. - h)) / y.shape[0]
+    #print(f"h:{h}, y.shape[0]:{y.shape[0]}")
+    return gradient, loss
+
+def logistic_predict(tx, w):
+    sigma = 1. / (1. + np.exp(-tx@w))
+    return np.where(sigma > 0.5, np.ones_like(sigma), np.zeros_like(sigma))
 
 
 
