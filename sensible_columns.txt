@@ -1,0 +1,18 @@
+90 : self-assessed health status (NOT SCALAR)
+91-92 : self assessed days bad health (NOT SCALAR)
+up until 117 it's self-assessed health related qcm
+
+118-119: age told diabete (99 to remove)
+
+120! : sex (Look if I can treat classes differently)
+
+demographics: 157,158,159, 168,... can be useful for correlated data
+
+178-181 and 182-185 : weight and height, to PROCESS
+
+180-210 : many relevant yes/no etc. questions on life habits (SMOKING, alcohol). needs significant processing
+210-240 : same, vegetables, exercise. needs processing
+
+
+
+usecols=[27, 28, 62, 63, 251, 252, 270]
