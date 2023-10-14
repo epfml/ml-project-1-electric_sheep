@@ -61,7 +61,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
 
     return loss, w
 
-
+#TODO : rewrite using np.linalg.solve
 def least_squares(y, tx):
     w_opt = np.linalg.inv(tx.T @ tx) @ tx.T @ y
     _, loss = compute_MSE_gradient_and_loss(y, tx, w_opt)
@@ -89,7 +89,18 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     return loss, w
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
-    ...
+    w = initial_w
+
+    for n_iter in range(max_iters):
+        gradient, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
+        w = w - gamma * (gradient + 2*lambda_*w)
+
+        if n_iter % 20 == 0:
+            print(f"iter {n_iter} : loss = {loss}")
+
+    _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
+
+    return loss, w
 
 
 
@@ -116,13 +127,20 @@ def compute_MSE_gradient_and_loss(y, tx, w):
     return gradient, loss
 
 def compute_cross_entropy_gradient_and_loss(y, tx, w):
-    #print(f"current w : {w}")
-    h = 1. / (1. + np.exp(-tx@w))
 
-    gradient = (h - y) @ tx + 0.1 * w
-    loss = -np.sum(y * np.log(h) + (1. - y) * np.log(1. - h)) / y.shape[0]
-    #print(f"h:{h}, y.shape[0]:{y.shape[0]}")
+    #h = 1. / (1. + np.exp(-tx@w))
+    #gradient = (h - y) @ tx
+    #loss = -np.sum(y * np.log(h) + (1. - y) * np.log(1. - h)) / y.shape[0]
+
+    N = tx.shape[0]
+    b = tx@w
+    gradient = tx.T @ (sigmoid(b) - y) / N
+    loss = np.sum(np.log(1. + np.exp(b)) - y * b) / N
+
     return gradient, loss
+
+def sigmoid(x):
+    return 1. / (1. + np.exp(-x))
 
 def logistic_predict(tx, w):
     sigma = 1. / (1. + np.exp(-tx@w))

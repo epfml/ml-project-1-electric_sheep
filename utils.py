@@ -14,6 +14,7 @@ def load_data(x_dataset_path, y_dataset_path, max_rows=None, usecols=None):
     # _TODO : maybe, add 1 column to x PROBABLY DONE
     # TODO : remove outliers
     # TODO : enrich with poly-feature expansion
+    # TODO : (VERY IMPORTANT) one hot encoding of almost every feature.
 
     return tx, y
 
@@ -66,13 +67,30 @@ def build_poly(x, degree):
     """
 
 
-    #N = x.shape[0]
     # we want to build an N * d array [[0,...,d], ..., [0,...,d]] to broadcast power it with x
     #exponents = np.arange(0, degree + 1)
 
     #return x.reshape((N, 1)) ** exponents.reshape((1, degree + 1))
 
-    raise NotImplementedError()
+    #easy first step : 1 column, then all xi's, then all xi²'s
+    N = x.shape[0]
+    d = x.shape[1]
+    ones = np.ones((N,1))
+    squares = x ** 2
+    to_concat = [ones]
+    for i in range(1, degree+1):
+        to_concat.append(x ** i)
+    exp_x = np.concatenate(to_concat, axis=1)
+    print(f"expanded x: {exp_x}")
+    return exp_x
+
+def feature_specific_processing(x):
+    # 27, 28: replace 88 with 0, ignore higher than 30
+    print(f"x before = {x}")
+    x[:,0:2][x[:,0:2]==88] = 0
+    x[:,0:2][x[:,0:2] > 30] = np.nan
+    print(f"x after = {x}")
+    return x
 
 #==========================Plotting==========================#
 def scatter_plot():
