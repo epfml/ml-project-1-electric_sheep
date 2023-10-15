@@ -9,8 +9,6 @@ def compare(p):
     (_, loss) = p
     return loss
 
-# TODO : do the same with poly expansion
-
 losses = []
 for i in range(321):
 
