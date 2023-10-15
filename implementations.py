@@ -30,7 +30,6 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
     return loss, w
 
 
-# TODO : maybe modularize with GD.
 def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     """The Stochastic Gradient Descent (SGD) algorithm.
 
@@ -51,7 +50,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     w = initial_w
 
     for n_iter in range(max_iters):
-        n = np.random.randint(0, N)
+        n = np.random.randint(n)
         gradient, loss = compute_MSE_gradient_and_loss(y[[n]], tx[[n]], w)
         w = w - gamma * gradient
 
@@ -61,7 +60,6 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
 
     return loss, w
 
-#TODO : rewrite using np.linalg.solve
 def least_squares(y, tx):
     w_opt = np.linalg.inv(tx.T @ tx) @ tx.T @ y
     _, loss = compute_MSE_gradient_and_loss(y, tx, w_opt)
@@ -89,10 +87,13 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     return loss, w
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
+    
     w = initial_w
 
     for n_iter in range(max_iters):
-        gradient, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
+        #batch_y, batch_tx = batch(y, tx, 256)
+        batch_y, batch_tx = y, tx
+        gradient, loss = compute_cross_entropy_gradient_and_loss(batch_y, batch_tx, w)
         w = w - gamma * (gradient + 2*lambda_*w)
 
         if n_iter % 20 == 0:
@@ -134,18 +135,37 @@ def compute_cross_entropy_gradient_and_loss(y, tx, w):
 
     N = tx.shape[0]
     b = tx@w
-    gradient = tx.T @ (sigmoid(b) - y) / N
+    h = sigmoid(b)
+    gradient = tx.T @ (h - y) / N
+
     loss = np.sum(np.log(1. + np.exp(b)) - y * b) / N
+    #loss = -np.sum(y * np.log(h) + (1. - y) * np.log(1. - h)) / y.shape[0]
+
 
     return gradient, loss
 
 def sigmoid(x):
-    return 1. / (1. + np.exp(-x))
+    #return 1. / (1. + np.exp(-x))
+    return 0.5 * (1.0 + np.tanh(0.5 * x))
 
 def logistic_predict(tx, w):
-    sigma = 1. / (1. + np.exp(-tx@w))
+    #sigma = 1. / (1. + np.exp(-tx@w))
+    sigma = sigmoid(tx@w)
     return np.where(sigma > 0.5, np.ones_like(sigma), np.zeros_like(sigma))
 
+def batch(y, tx, batch_size):
+    """
+    Generate a minibatch iterator for a dataset.
+    Takes as input two iterables (here the output desired values 'y' and the input data 'tx')
+    Outputs an iterator which gives mini-batches of `batch_size` matching elements from `y` and `tx`.
+    Data can be randomly shuffled to avoid ordering in the original data messing with the randomness of the minibatches.
+    Example of use :
+    for minibatch_y, minibatch_tx in batch_iter(y, tx, 32):
+        <DO-SOMETHING>
+    """
+    N = len(y)
 
+    indices = np.random.permutation(np.arange(N))[0:batch_size]
+    return y[indices], tx[indices]
 
 

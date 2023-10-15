@@ -100,6 +100,21 @@ def test_replace_missing_features_with_mean():
     print("    -replace_missing_features_with_mean test passed!")
 
 
+def test_one_hot_encoding():
+    x = np.array([[1, 2], [2, 0], [3, 1]])
+    c = np.array([True, True])
+    true_ohe = np.array([
+        [0, 1, 0, 0, 0, 0, 1], 
+        [0, 0, 1, 0, 1, 0, 0], 
+        [0, 0, 0, 1, 0, 1, 0]
+    ])
+    ohe = utils.one_hot_encoding(x, c)
+    print(f"ohe = {ohe}")
+
+    assert np.array_equal(ohe, true_ohe)
+    print("    -one_hot_encoding test passed!")
+
+
 
 def run_all_tests():
     test_load_data()
@@ -117,4 +132,5 @@ def run_all_tests():
 
 #test_least_squares()
 #test_ridge_regression()
-test_replace_missing_features_with_mean()
+#test_replace_missing_features_with_mean()
+test_one_hot_encoding()

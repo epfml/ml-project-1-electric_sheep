@@ -7,30 +7,25 @@ import matplotlib.pyplot as plt
 def load_data(x_dataset_path, y_dataset_path, max_rows=None, usecols=None):
     tx = np.genfromtxt(x_dataset_path, delimiter=",", skip_header=1, max_rows=max_rows, usecols=usecols)
     y = np.genfromtxt(y_dataset_path, delimiter=",", skip_header=1, max_rows=max_rows)
-    # _TODO use converters for text data. maybe missing_values/filling_values (i think there's no text data)
-    # converter example : converters={0: lambda x: 0 if b"Male" in x else 1},
-    # _TODO maybe normalize the dataset (also convert to sensible unit if they're american), PROBABLY DONE
-    # TODO : extrapolate for the data we don't have, stuff like that
-    # _TODO : maybe, add 1 column to x PROBABLY DONE
-    # TODO : remove outliers
-    # TODO : enrich with poly-feature expansion
-    # TODO : (VERY IMPORTANT) one hot encoding of almost every feature.
 
     return tx, y
 
-def normalize(x):
+def normalize(x, c):
     """
     A function to normalize an array, returning the data with 0 mean and 1 std_dev along each column
    
     Args:
         x : A (N, d) shaped array containing heterogeneous data
+        c: A (d,) shaped boolean array indicating which variables are categorical
 
     Returns:
         A (N, d) shaped array (like x), with mean 0 and std_dev 1 along each column
     """
-    means = np.mean(x, axis=0)
-    std_dev = np.std(x, axis=0)
-    return (x - means) / std_dev
+    scalar = ~c
+    means = np.mean(x[:, scalar], axis=0) # means has shape (d_scalar), where d_scalar is the #scalar features
+    std_dev = np.std(x[:, scalar], axis=0)
+    x[:, scalar] = (x[:, scalar] - means / std_dev)
+    return x
 
 def rows_with_all_features(x):
     missing_elems = np.isnan(x)
@@ -46,9 +41,11 @@ def remove_rows_with_missing_features(x, y):
 
     return x,y
 
-def replace_missing_features_with_mean(x):
-    means = np.nanmean(x, axis=0)
-    return np.nan_to_num(x, nan=means)
+def replace_missing_features_with_mean(x, c):
+    scalar = ~c
+    means = np.nanmean(x[:, scalar], axis=0) # means has shape (d_scalar)
+    x[:, scalar] = np.nan_to_num(x[:, scalar], nan=means)
+    return x
 
 
 def build_poly(x, degree):
@@ -62,7 +59,7 @@ def build_poly(x, degree):
         poly: numpy array of shape (N, d'), where d' is the total number of polynomial features.
         for example, with d=2, degree = 2, we have 1, f1, f2, f1 * f2, f1², f2², so 6 features
     
-    TODO : find a general way of finding all the possible combinations for all degree and d.
+    NOTE : We need to find a general way of finding all the possible combinations for all degree and d.
     NOTE : this function should have the advantage of handling the 1 column vector by setting degree=1
     """
 
@@ -91,6 +88,44 @@ def feature_specific_processing(x):
     x[:,0:2][x[:,0:2] > 30] = np.nan
     print(f"x after = {x}")
     return x
+
+def one_hot_encoding(x, c):
+    """
+        Args:
+            x: Numpy array of shape (N, d) with some categorical features, can contain NaN values
+            c: Numpy array of shape (d,) with boolean values encoding which feature is categorical
+        Returns:
+            A numpy array of shape (N, d'), where each of the categorical feature was converted to one-hot encoding
+    """
+
+    """ how to do more dimensions?
+    Say x = [[1, 2], [2, 0]]
+    We want [ [0 1 0 0 0 1] , [0 0 1 1 0 0] ]
+    
+    """
+    # we need a cumulative sum thing : cat_counts=[2, 3, 3, 2] -> [0, 2, 5, 8]
+    # with this we could do z[cat_x + cum_cat_counts] = 1
+    # here cat_x + cum_cat_counts = [[1, 2], [2, 0]] + [0, 3] = [[1, 5], [2, 3]]
+    # and z[above] = [[0 1 0 0 0 1], [0 0 1 1 0 0]] -> CORRECT!
+    if not c.any():
+        return x
+
+    N = x.shape[0]
+    cat_x = x[:, c] # x with only categorical features
+    cat_x = np.nan_to_num(cat_x, nan=0)
+    cat_x = cat_x.astype('int32')
+    cat_counts = np.nanmax(cat_x, axis=0)+1 # cat_counts is a (d,) shaped array with the max value for each feature
+    d_prime = np.sum(cat_counts, dtype=np.int32)
+    print(f"N = {N}, d_prime = {d_prime}")
+    z = np.zeros((N, d_prime))
+    # we don't want to substract the first, we want to slide everything : [1, 3, 2] -> [1, 4, 6] -> [0, 1, 4]
+    cum_cat_counts = np.roll(np.cumsum(cat_counts), 1)
+    cum_cat_counts[0] = 0
+    indexes = cat_x + cum_cat_counts
+    z[np.arange(N), indexes.T] = 1
+
+    return np.concatenate((z, x[:, ~c]), axis=1)
+
 
 #==========================Plotting==========================#
 def scatter_plot():

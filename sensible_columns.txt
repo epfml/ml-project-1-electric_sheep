@@ -4,7 +4,7 @@ up until 117 it's self-assessed health related qcm
 
 118-119: age told diabete (99 to remove)
 
-120! : sex (Look if I can treat classes differently)
+120! : sex (Look if we can treat classes differently)
 
 demographics: 157,158,159, 168,... can be useful for correlated data
 
