@@ -1,14 +1,76 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import csv
+
 #===========================Data Pre-Processing===========================#
 
 #there's 321 features in the dataset
-def load_data(x_dataset_path, y_dataset_path, max_rows=None, usecols=None):
-    tx = np.genfromtxt(x_dataset_path, delimiter=",", skip_header=1, max_rows=max_rows, usecols=usecols)
-    y = np.genfromtxt(y_dataset_path, delimiter=",", skip_header=1, max_rows=max_rows)
+def load_data(x_train_path=None, y_train_path=None, x_test_path=None, max_rows_train=None, max_rows_test=None, x_features=None):
+    """
+    This function loads the data and returns the respectinve numpy arrays.
+    Remember to put the 3 files in the same folder and to not change the names of the files.
 
-    return tx, y
+    Args:
+        data_path (str): datafolder path
+        sub_sample (bool, optional): If True the data will be subsempled. Default to False.
+
+    Returns:
+        x_train (np.array): training data
+        x_test (np.array): test data
+        y_train (np.array): labels for training data in format (-1,1)
+        train_ids (np.array): ids of training data
+        test_ids (np.array): ids of test data
+    """
+    y_train = np.genfromtxt(
+        y_train_path,
+        delimiter=",",
+        skip_header=1,
+        dtype=int,
+        usecols=1,
+        max_rows=max_rows_train
+    ) if y_train_path is not None else None
+
+    x_train = np.genfromtxt(
+        x_train_path, delimiter=",", skip_header=1, max_rows=max_rows_train, usecols=x_features
+    ) if x_train_path is not None else None
+
+    x_test = np.genfromtxt(
+        x_test_path, delimiter=",", skip_header=1, max_rows=max_rows_test, usecols=x_features
+    ) if x_test_path is not None else None
+
+    train_ids = x_train[:, 0].astype(dtype=int) if x_train_path is not None else None
+    test_ids = x_test[:, 0].astype(dtype=int) if x_test_path is not None else None
+    x_train = x_train[:, 1:] if x_train_path is not None else None
+    x_test = x_test[:, 1:] if x_test_path is not None else None
+
+    y_train = (y_train + 1) / 2 # put y between 0 and 1 (TODO : why did they put it between -1 and 1?)
+
+    return x_train, x_test, y_train, train_ids, test_ids
+
+
+def create_csv_submission(ids, y_pred, name):
+    """
+    This function creates a csv file named 'name' in the format required for a submission in Kaggle or AIcrowd.
+    The file will contain two columns the first with 'ids' and the second with 'y_pred'.
+    y_pred must be a list or np.array of 1 and -1 otherwise the function will raise a ValueError.
+
+    Args:
+        ids (list,np.array): indices
+        y_pred (list,np.array): predictions on data correspondent to indices
+        name (str): name of the file to be created
+    """
+    # Check that y_pred only contains -1 and 1
+    if not all(i in [-1, 1] for i in y_pred):
+        raise ValueError("y_pred can only contain values -1, 1")
+
+    with open(name, "w", newline="") as csvfile:
+        fieldnames = ["Id", "Prediction"]
+        writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames)
+        writer.writeheader()
+        for r1, r2 in zip(ids, y_pred):
+            writer.writerow({"Id": int(r1), "Prediction": int(r2)})
+
 
 def normalize(x, c):
     """

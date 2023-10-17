@@ -91,7 +91,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     w = initial_w
 
     for n_iter in range(max_iters):
-        #batch_y, batch_tx = batch(y, tx, 256)
+        #batch_y, batch_tx = batch(y, tx, 100)
         batch_y, batch_tx = y, tx
         gradient, loss = compute_cross_entropy_gradient_and_loss(batch_y, batch_tx, w)
         w = w - gamma * (gradient + 2*lambda_*w)
