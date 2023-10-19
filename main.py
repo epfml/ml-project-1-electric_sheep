@@ -44,8 +44,8 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
     x_train_path="dataset/x_train.csv", 
     y_train_path="dataset/y_train.csv", 
     x_test_path="dataset/x_test.csv", 
-    max_rows_train=1000, 
-    max_rows_test=10, 
+    max_rows_train=60000, 
+    max_rows_test=None, 
     x_features=x_features
 )
 
@@ -84,7 +84,7 @@ d = tx_train_train.shape[1]
 initial_w = np.zeros(d)
 #loss, w = implementations.reg_logistic_regression(y_train_train, tx_train_train, 0, initial_w, 2000, 0.3)
 #loss, w = implementations.reg_logistic_regression_sgd(y_train_train, tx_train_train, 0, initial_w, 20000, 0.3, 1024, 0.7)
-loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, 0.00001, initial_w, 3000, 0.0004, 2048, 0.9, 0.999)
+loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, 0.000001, initial_w, 50000, 0.0004, 2048, 0.9, 0.999)
 
 #print(f"Loss -> {loss}")
 #print(f"final w : {w}")
