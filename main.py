@@ -11,6 +11,7 @@ import sys
     - automatically find optimal lambda, learning rates, etc. 
     - rewrite least_squares using np.linalg.solve (and maybe also ridge_regression)
     - find the optimal c with gradient descent or binary search
+    - if a sample has more than f fraction of missing values, drop it
 
     and maybe:
     - finish poly feature expansion (only if we can make scalar values work)
@@ -44,7 +45,7 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
     x_train_path="dataset/x_train.csv", 
     y_train_path="dataset/y_train.csv", 
     x_test_path="dataset/x_test.csv", 
-    max_rows_train=60000, 
+    max_rows_train=150000, 
     max_rows_test=None, 
     x_features=x_features
 )
@@ -54,7 +55,7 @@ def all_x_processing(x, c):
 
     x_scalar = x[:, ~c]
     x_scalar = utils.replace_missing_features_with_mean(x_scalar)
-    tx_scalar = utils.build_poly(x_scalar, 4)
+    tx_scalar = utils.build_poly(x_scalar, 6)
     tx_scalar[:, 1:] = utils.normalize(tx_scalar[:, 1:]) # we shouldn't normalize the first column (1 vector)
 
     x_categorical = x[:, c]
@@ -73,7 +74,7 @@ tx_train = tx[:N_train]
 tx_test = tx[N_train:]
 
 #divide dataset
-ratio = 0.5
+ratio = 0.8
 tx_train_train, tx_train_test, y_train_train, y_train_test = utils.split_data(ratio, tx_train, y_train)
 
 N_train_train = tx_train_train.shape[0]
@@ -84,7 +85,7 @@ d = tx_train_train.shape[1]
 initial_w = np.zeros(d)
 #loss, w = implementations.reg_logistic_regression(y_train_train, tx_train_train, 0, initial_w, 2000, 0.3)
 #loss, w = implementations.reg_logistic_regression_sgd(y_train_train, tx_train_train, 0, initial_w, 20000, 0.3, 1024, 0.7)
-loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, 0.000001, initial_w, 50000, 0.0004, 2048, 0.9, 0.999)
+loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, 0, initial_w, 50000, 0.0001, 2048, 0.9, 0.999)
 
 #print(f"Loss -> {loss}")
 #print(f"final w : {w}")

@@ -238,7 +238,7 @@ def split_data(ratio, tx, y):
 
 
 #==========================Evaluating==========================#
-def evaluate(tx, w, y, c=0.5):
+def evaluate(tx, w, y, c=0.5, print_=True):
 
     N = tx.shape[0]
     y_pred = implementations.logistic_predict(tx, w, c)
@@ -261,9 +261,10 @@ def evaluate(tx, w, y, c=0.5):
 
     #print(f"predictions = {y_pred}")
     #print(f"and y was : {y}")
-    print(f"    {N - correct.sum()} errors for {N} samples")
-    print(f"    Accuracy : {100. * accuracy}%")
-    print(f"    F1 : {f1}")
+    if print_:
+        print(f"    {N - correct.sum()} errors for {N} samples")
+        print(f"    Accuracy : {100. * accuracy}%")
+        print(f"    F1 : {f1}")
     #print(f"y 1 count was {pos_true}, so predicting only 0 yields {100. * (1. - pos_true / N)}% accuracy")
 
     return f1
@@ -271,14 +272,14 @@ def evaluate(tx, w, y, c=0.5):
 def find_optimal_c(tx, y, w):
     c = 0.5
     d = 0.25
-    best_f1 = evaluate(tx, w, y, c=c)
+    best_f1 = evaluate(tx, w, y, c=c, print_=False)
 
     #binary search algorithm
     for i in range(20):
         c_low = c - d
         c_high = c + d
-        f1_low = evaluate(tx, w, y, c=c_low)
-        f1_high = evaluate(tx, w, y, c=c_high)
+        f1_low = evaluate(tx, w, y, c=c_low, print_=False)
+        f1_high = evaluate(tx, w, y, c=c_high, print_=False)
         i = np.argmax([f1_low, best_f1, f1_high])
         c = np.array([c_low, c, c_high])[i]
         best_f1 = np.array([f1_low, best_f1, f1_high])[i]
