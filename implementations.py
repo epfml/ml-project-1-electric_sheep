@@ -61,7 +61,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     return loss, w
 
 def least_squares(y, tx):
-    w_opt = np.linalg.inv(tx.T @ tx) @ tx.T @ y
+    w_opt = np.linalg.solve(tx.T @ tx, tx.T@y)
     _, loss = compute_MSE_gradient_and_loss(y, tx, w_opt)
     return loss, w_opt
 
@@ -88,15 +88,69 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     
+    
     w = initial_w
 
     for n_iter in range(max_iters):
-        #batch_y, batch_tx = batch(y, tx, 100)
-        batch_y, batch_tx = y, tx
-        gradient, loss = compute_cross_entropy_gradient_and_loss(batch_y, batch_tx, w)
-        w = w - gamma * (gradient + 2*lambda_*w)
+        gradient, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
+        gradient += 2 * lambda_*w # regularisation term
 
-        if n_iter % 20 == 0:
+        w = w - gamma * gradient
+
+        if n_iter % 100 == 0:
+            print(f"iter {n_iter} : loss = {loss}")
+
+    _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
+
+    return loss, w
+
+def reg_logistic_regression_sgd(y, tx, lambda_, initial_w, max_iters, gamma, batch_size, b=None):
+        
+    w = initial_w
+    m = initial_w if b is not None else None
+
+    for n_iter in range(max_iters):
+        batch_y, batch_tx = batch(y, tx, batch_size)
+        gradient, loss = compute_cross_entropy_gradient_and_loss(batch_y, batch_tx, w)
+        gradient += 2 * lambda_*w
+
+        if b is not None:
+            m = b * m + (1.0-b) * gradient
+            w = w - gamma * m
+        else:
+            w = w - gamma * gradient
+
+        #w = w - (gamma * n_iter / max_iters) * gradient
+
+        if n_iter % 10 == 0:
+            _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
+            print(f"iter {n_iter} : loss = {loss}")
+
+    _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
+
+    return loss, w
+
+def reg_logistic_regression_adam(y, tx, lambda_, initial_w, max_iters, gamma, batch_size, b1, b2):
+    
+    w = initial_w
+    m = initial_w
+    v = initial_w
+
+    for n_iter in range(max_iters):
+        batch_y, batch_tx = batch(y, tx, batch_size)
+        gradient, loss = compute_cross_entropy_gradient_and_loss(batch_y, batch_tx, w)
+        gradient += 2 * lambda_*w
+
+        m = b1 * m + (1 - b1) * gradient
+        v = b2 * v + (1 - b2) * (gradient ** 2)
+
+        m_hat = m / (1 - b1 ** (n_iter + 1))
+        v_hat = v / (1 - b2 ** (n_iter + 1))
+
+        w = w - gamma * m_hat / (np.sqrt(v_hat) + 1e-8)
+
+        if n_iter % 10 == 0:
+            _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
             print(f"iter {n_iter} : loss = {loss}")
 
     _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
@@ -148,10 +202,10 @@ def sigmoid(x):
     #return 1. / (1. + np.exp(-x))
     return 0.5 * (1.0 + np.tanh(0.5 * x))
 
-def logistic_predict(tx, w):
+def logistic_predict(tx, w, c=0.5):
     #sigma = 1. / (1. + np.exp(-tx@w))
     sigma = sigmoid(tx@w)
-    return np.where(sigma > 0.5, np.ones_like(sigma), np.zeros_like(sigma))
+    return np.where(sigma > c, np.ones_like(sigma), np.zeros_like(sigma))
 
 def batch(y, tx, batch_size):
     """

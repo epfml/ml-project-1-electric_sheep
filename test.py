@@ -50,10 +50,10 @@ def test_least_squares():
     loss, w = implementations.least_squares(y, X)
 
     print(f"     ls final loss : {loss}")
+    print(f"     w shape = {w.shape}")
     #print(f"final w : {w}")
-    utils.line_and_scatter_plot(y, X, w)
+    #utils.line_and_scatter_plot(y, X, w)
     print(f"    -least_squares test passed!")
-
 
 def test_ridge_regression():
 
@@ -68,7 +68,6 @@ def test_ridge_regression():
     #print(f"final w : {w}")
     utils.line_and_scatter_plot(y, X, w)
     print(f"    -ridge_regression test passed!")
-
 
 def test_load_data():
     x, y = utils.load_data("dataset/x_train.csv", "dataset/y_train.csv", max_rows=20)
@@ -99,22 +98,32 @@ def test_replace_missing_features_with_mean():
     assert np.array_equal(x_f, x_true)
     print("    -replace_missing_features_with_mean test passed!")
 
-
-def test_one_hot_encoding():
+def test_one_hot_encoding_old():
     x = np.array([[1, 2], [2, 0], [3, 1]])
-    c = np.array([True, True])
     true_ohe = np.array([
         [0, 1, 0, 0, 0, 0, 1], 
         [0, 0, 1, 0, 1, 0, 0], 
         [0, 0, 0, 1, 0, 1, 0]
     ])
-    ohe = utils.one_hot_encoding(x, c)
+    ohe = utils.one_hot_encoding_old(x)
     print(f"ohe = {ohe}")
 
     assert np.array_equal(ohe, true_ohe)
+    print("    -one_hot_encoding_old test passed!")
+
+def test_one_hot_encoding():
+    # cats = [3, 5, 7] for feature 1 and [4, 6, 8] for feature 2. x.shape = [4, 2]
+    x = np.array([[3, 6], [7, 8], [5, 4], [5, 6]])
+    # we want collapsed = [[0, 1], [2, 2], [1, 0], [1, 1]]
+    # and then, one hot = [[1 0 0 0 1 0] [0 0 1 0 0 1] [0 1 0 1 0 0], [0 1 0 0 1 0]]
+    ohe = utils.one_hot_encoding(x)
+    true_ohe = np.array([[1, 0, 0, 0, 1, 0], [0, 0, 1, 0, 0, 1], [0, 1, 0, 1, 0, 0], [0, 1, 0, 0, 1, 0]])
+
+    print(f"ohe = {ohe}")
+    print(f"true_ohe = {true_ohe}")
+
+    assert np.array_equal(ohe, true_ohe)
     print("    -one_hot_encoding test passed!")
-
-
 
 def run_all_tests():
     test_load_data()
@@ -130,7 +139,7 @@ def run_all_tests():
 
 #run_all_tests()
 
-#test_least_squares()
+test_least_squares()
 #test_ridge_regression()
 #test_replace_missing_features_with_mean()
-test_one_hot_encoding()
+#test_one_hot_encoding()
