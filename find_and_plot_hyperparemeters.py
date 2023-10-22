@@ -17,7 +17,7 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
     x_train_path="dataset/x_train.csv", 
     y_train_path="dataset/y_train.csv", 
     x_test_path="dataset/x_test.csv", 
-    max_rows_train=50000, 
+    max_rows_train=5000, 
     max_rows_test=10, 
     x_features=x_features
 )
@@ -40,6 +40,7 @@ ratio = 0.8
 degrees = [7]
 lambdas = [0, 1e-8, 1e-7, 1e-6, 1e-4]
 print("Degree/Lambda    0       1e-8    1-e-7   1-e6    1e-4")
+results = [] # stores pairs (w, f1)
 for degree in degrees:
     print(f"{degree}            ", end='')
     for lambda_ in lambdas:
@@ -57,10 +58,29 @@ for degree in degrees:
 
         #train by calling the right function
         initial_w = np.zeros(d)
-        loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, lambda_, initial_w, 4000, 0.0001, 512, 0.9, 0.999)
+        loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, lambda_, initial_w, 400, 0.0001, 512, 0.9, 0.999)
 
         #testing accuracy
         optimal_c, optimal_f1 = utils.find_optimal_c(tx_train_test, y_train_test, w)
-        print(f"{optimal_f1:.5f}    ", end='')
-        #print(f"\n\n========Found Optimal c = {optimal_c}, yielding f1 {optimal_f1}========\n")
+        print(f"{optimal_f1:.3f}    ", end='')
+        results.append((w, optimal_f1, optimal_c))
     print()
+
+# in the end, we save to some file the best results
+optimal_c = None
+optimal_w = None
+optimal_f1 = 0.
+i = 0
+opt_idx = 0
+for (w, f1, c) in results:
+    if f1 > optimal_f1:
+        optimal_f1 = f1
+        optimal_c = c
+        optimal_w = w
+        opt_idx = i
+    i +=1
+
+print(f"\nfound the best value at idx {opt_idx}") # we can do modulo to find the hpp
+test_predictions = implementations.logistic_predict(tx_test, optimal_w, c=optimal_c)
+test_predictions = test_predictions * 2 - 1
+utils.create_csv_submission(test_ids, test_predictions, f"hpp_optimal_submission.csv")
