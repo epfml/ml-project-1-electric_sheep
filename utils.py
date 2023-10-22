@@ -1,19 +1,78 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#there's 321 features in the dataset
-def load_data(x_dataset_path, y_dataset_path, max_rows=None, usecols=None):
-    tx = np.genfromtxt(x_dataset_path, delimiter=",", skip_header=1, max_rows=max_rows, usecols=usecols)
-    y = np.genfromtxt(y_dataset_path, delimiter=",", skip_header=1, max_rows=max_rows)
-    # _TODO use converters for text data. maybe missing_values/filling_values (i think there's no text data)
-    # converter example : converters={0: lambda x: 0 if b"Male" in x else 1},
-    # _TODO maybe normalize the dataset (also convert to sensible unit if they're american), PROBABLY DONE
-    # TODO : extrapolate for the data we don't have, stuff like that
-    # _TODO : maybe, add 1 column to x PROBABLY DONE
-    # TODO : remove outliers
-    # TODO : enrich with poly-feature expansion
+import csv
 
-    return tx, y
+import implementations
+
+#===========================Data Pre-Processing===========================#
+
+#there's 321 features in the dataset
+def load_data(x_train_path=None, y_train_path=None, x_test_path=None, max_rows_train=None, max_rows_test=None, x_features=None):
+    """
+    This function loads the data and returns the respectinve numpy arrays.
+    Remember to put the 3 files in the same folder and to not change the names of the files.
+
+    Args:
+        data_path (str): datafolder path
+        sub_sample (bool, optional): If True the data will be subsempled. Default to False.
+
+    Returns:
+        x_train (np.array): training data
+        x_test (np.array): test data
+        y_train (np.array): labels for training data in format (-1,1)
+        train_ids (np.array): ids of training data
+        test_ids (np.array): ids of test data
+    """
+    y_train = np.genfromtxt(
+        y_train_path,
+        delimiter=",",
+        skip_header=1,
+        dtype=int,
+        usecols=1,
+        max_rows=max_rows_train
+    ) if y_train_path is not None else None
+
+    x_train = np.genfromtxt(
+        x_train_path, delimiter=",", skip_header=1, max_rows=max_rows_train, usecols=x_features
+    ) if x_train_path is not None else None
+
+    x_test = np.genfromtxt(
+        x_test_path, delimiter=",", skip_header=1, max_rows=max_rows_test, usecols=x_features
+    ) if x_test_path is not None else None
+
+    train_ids = x_train[:, 0].astype(dtype=int) if x_train_path is not None else None
+    test_ids = x_test[:, 0].astype(dtype=int) if x_test_path is not None else None
+    x_train = x_train[:, 1:] if x_train_path is not None else None
+    x_test = x_test[:, 1:] if x_test_path is not None else None
+
+    y_train = (y_train + 1) / 2 # put y between 0 and 1 (TODO : why did they put it between -1 and 1?)
+
+    return x_train, x_test, y_train, train_ids, test_ids
+
+
+def create_csv_submission(ids, y_pred, name):
+    """
+    This function creates a csv file named 'name' in the format required for a submission in Kaggle or AIcrowd.
+    The file will contain two columns the first with 'ids' and the second with 'y_pred'.
+    y_pred must be a list or np.array of 1 and -1 otherwise the function will raise a ValueError.
+
+    Args:
+        ids (list,np.array): indices
+        y_pred (list,np.array): predictions on data correspondent to indices
+        name (str): name of the file to be created
+    """
+    # Check that y_pred only contains -1 and 1
+    if not all(i in [-1, 1] for i in y_pred):
+        raise ValueError("y_pred can only contain values -1, 1")
+
+    with open(name, "w", newline="") as csvfile:
+        fieldnames = ["Id", "Prediction"]
+        writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames)
+        writer.writeheader()
+        for r1, r2 in zip(ids, y_pred):
+            writer.writerow({"Id": int(r1), "Prediction": int(r2)})
+
 
 def normalize(x):
     """
@@ -21,26 +80,213 @@ def normalize(x):
    
     Args:
         x : A (N, d) shaped array containing heterogeneous data
+        c: A (d,) shaped boolean array indicating which variables are categorical
 
     Returns:
         A (N, d) shaped array (like x), with mean 0 and std_dev 1 along each column
     """
-    means = np.mean(x, axis=0)
-    std_dev = np.std(x, axis=0)
-    return (x - means) / std_dev
+    return (x - np.mean(x, axis=0)) / np.std(x, axis=0)
+
+def rows_with_all_features(x):
+    missing_elems = np.isnan(x)
+    return np.logical_not(missing_elems.any(axis=1))
 
 def remove_rows_with_missing_features(x, y):
 
-    lines_before = x.shape[0]
-    missing_elems = np.isnan(x)
-    #print(f"missing rows = {missing_elems}")
-    full_rows = np.logical_not(missing_elems.any(axis=1))
+    full_rows = rows_with_all_features(x)
     x = x[full_rows]
     y = y[full_rows]
-    #print(f"after non-nan : x = {x}")
-    print(f"before/after for N : ({lines_before}, {x.shape[0]})")
 
     return x,y
+
+def replace_missing_features_with_mean(x):
+    return np.nan_to_num(x, nan=np.nanmean(x, axis=0))
+
+
+def build_poly(x, degree, bias=True):
+    """polynomial basis functions for input data x, for j=0 up to j=degree.
+
+    Args:
+        x: numpy array of shape (N, d), N is the number of samples and d the number of features
+        degree: integer.
+
+    Returns:
+        poly: numpy array of shape (N, d'), where d' is the total number of polynomial features.
+        for example, with d=2, degree = 2, we have 1, f1, f2, f1 * f2, f1², f2², so 6 features
+    
+    NOTE : We need to find a general way of finding all the possible combinations for all degree and d.
+    NOTE : this function should have the advantage of handling the 1 column vector by setting degree=1
+    """
+
+
+    # we want to build an N * d array [[0,...,d], ..., [0,...,d]] to broadcast power it with x
+    #exponents = np.arange(0, degree + 1)
+
+    #return x.reshape((N, 1)) ** exponents.reshape((1, degree + 1))
+
+    #easy first step : 1 column, then all xi's, then all xi²'s
+
+    N = x.shape[0]
+    to_concat = []
+    if(bias):
+        to_concat.append(np.ones((N,1)))
+    for i in range(1, degree+1):
+        to_concat.append(x ** i)
+
+    return np.concatenate(to_concat, axis=1)
+
+def feature_specific_processing(x):
+    # 27, 28: replace 88 with 0, ignore higher than 30
+    print(f"x before = {x}")
+    x[:,0:2][x[:,0:2]==88] = 0
+    x[:,0:2][x[:,0:2] > 30] = np.nan
+    print(f"x after = {x}")
+    return x
+
+def one_hot_encoding_old(x):
+    """
+        Args:
+            x: Numpy array of shape (N, d) with some categorical features, can contain NaN values
+            c: Numpy array of shape (d,) with boolean values encoding which feature is categorical
+        Returns:
+            A numpy array of shape (N, d'), where each of the categorical feature was converted to one-hot encoding
+    """
+
+    """ how to do more dimensions?
+    Say x = [[1, 2], [2, 0]]
+    We want [ [0 1 0 0 0 1] , [0 0 1 1 0 0] ]
+    
+    """
+    # we need a cumulative sum thing : cat_counts=[2, 3, 3, 2] -> [0, 2, 5, 8]
+    # with this we could do z[cat_x + cum_cat_counts] = 1
+    # here cat_x + cum_cat_counts = [[1, 2], [2, 0]] + [0, 3] = [[1, 5], [2, 3]]
+    # and z[above] = [[0 1 0 0 0 1], [0 0 1 1 0 0]] -> CORRECT!
+
+    if x.shape[1] == 0:
+        return x
+
+    N = x.shape[0]
+    # we assume x only contains categorical features
+    x = np.nan_to_num(x, nan=0)
+    x = x.astype('int32')
+    cat_counts = np.nanmax(x, axis=0)+1 # cat_counts is a (d,) shaped array with the max value for each feature
+    d_prime = np.sum(cat_counts, dtype=np.int32)
+    print(f"N = {N}, d_prime = {d_prime}")
+    z = np.zeros((N, d_prime))
+    # we don't want to substract the first, we want to slide everything : [1, 3, 2] -> [1, 4, 6] -> [0, 1, 4]
+    cum_cat_counts = np.roll(np.cumsum(cat_counts), 1)
+    cum_cat_counts[0] = 0
+    indexes = x + cum_cat_counts
+    z[np.arange(N), indexes.T] = 1
+
+    return z
+
+def one_hot_encoding(x):
+    """
+        Args:
+            x: Numpy array of shape (N, d) with some categorical features, can contain NaN values
+            c: Numpy array of shape (d,) with boolean values encoding which feature is categorical
+        Returns:
+            A numpy array of shape (N, d'), where each of the categorical feature was converted to one-hot encoding
+    """
+
+    """ how to do more dimensions?
+    Say x = [[1, 3], [2, 0], [0, 3]]
+    We want [ [0 1 0 0 1] , [0 0 1 1 0], [1 0 0 0 1]] : notice the second features only has 2 one-hot features, because it has only 2 possible values
+    
+    """
+    # we need a cumulative sum thing : cat_counts=[2, 3, 3, 2] -> [0, 2, 5, 8]
+    # with this we could do z[cat_x + cum_cat_counts] = 1
+    # here cat_x + cum_cat_counts = [[1, 2], [2, 0]] + [0, 3] = [[1, 5], [2, 3]]
+    # and z[above] = [[0 1 0 0 0 1], [0 0 1 1 0 0]] -> CORRECT!
+
+    if x.shape[1] == 0:
+        return x
+
+    N = x.shape[0]
+    d = x.shape[1]
+    # we assume x only contains categorical features
+    x = np.nan_to_num(x, nan=0)
+    x = x.astype('int32')
+
+    for i in range(d):
+        _, collapsed = np.unique(x[:, i], return_inverse=True)
+        # suppose we have col = [7, 5, 5, 7, 5], then, we obtain categories = [5, 7], collapsed = [1, 0, 0, 1, 0]
+        x[:, i] = collapsed
+
+
+    cat_counts = np.nanmax(x, axis=0)+1 # cat_counts is a (d,) shaped array with the max value for each feature
+    d_prime = np.sum(cat_counts, dtype=np.int32)
+    z = np.zeros((N, d_prime))
+    # we don't want to substract the first, we want to slide everything : [1, 3, 2] -> [1, 4, 6] -> [0, 1, 4]
+    cum_cat_counts = np.roll(np.cumsum(cat_counts), 1)
+    cum_cat_counts[0] = 0
+    indexes = x + cum_cat_counts
+    z[np.arange(N), indexes.T] = 1
+
+    return z
+
+def split_data(ratio, tx, y):
+
+    split = int(np.floor(ratio * tx.shape[0]))
+    tx_test = tx[split:]
+    y_test = y[split:]
+    tx_train = tx[:split]
+    y_train = y[:split]
+
+    return tx_train, tx_test, y_train, y_test
+
+
+#==========================Evaluating==========================#
+def evaluate(tx, w, y, c=0.5, print_=True):
+
+    N = tx.shape[0]
+    y_pred = implementations.logistic_predict(tx, w, c)
+
+    correct = y_pred == y
+    pos = y_pred == 1
+
+    n_correct = np.sum(correct)
+    accuracy = n_correct / N
+
+    p = pos.sum()
+    tp = (correct & pos).sum()
+    fp = p - tp
+    tn = (~pos & correct).sum()
+    fn = (N - p) - tn
+
+    f1 = 2 * tp / (2 * tp + fp + fn)
+
+    #pos_true = y.sum()
+
+    #print(f"predictions = {y_pred}")
+    #print(f"and y was : {y}")
+    if print_:
+        print(f"    {N - correct.sum()} errors for {N} samples")
+        print(f"    Accuracy : {100. * accuracy}%")
+        print(f"    F1 : {f1}")
+    #print(f"y 1 count was {pos_true}, so predicting only 0 yields {100. * (1. - pos_true / N)}% accuracy")
+
+    return f1
+
+def find_optimal_c(tx, y, w):
+    c = 0.5
+    d = 0.25
+    best_f1 = evaluate(tx, w, y, c=c, print_=False)
+
+    #binary search algorithm
+    for i in range(20):
+        c_low = c - d
+        c_high = c + d
+        f1_low = evaluate(tx, w, y, c=c_low, print_=False)
+        f1_high = evaluate(tx, w, y, c=c_high, print_=False)
+        i = np.argmax([f1_low, best_f1, f1_high])
+        c = np.array([c_low, c, c_high])[i]
+        best_f1 = np.array([f1_low, best_f1, f1_high])[i]
+        d /= 2
+
+    return c, best_f1
+
 
 #==========================Plotting==========================#
 def scatter_plot():

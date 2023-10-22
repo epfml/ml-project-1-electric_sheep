@@ -1,0 +1,2 @@
+https://www.kdnuggets.com/2021/05/deal-with-categorical-data-machine-learning.html
+https://cs229.stanford.edu/materials/ML-advice.pdf
