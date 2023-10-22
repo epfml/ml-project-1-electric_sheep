@@ -1,6 +1,8 @@
 import utils
 import implementations
 
+import matplotlib.pyplot as plt
+
 import numpy as np
 #np.set_printoptions(threshold=sys.maxsize)
 
@@ -112,6 +114,14 @@ for c in cs:
 best_c = np.argmax(f1s)
 print(f"Best cutoff c : {cs[best_c]}, yields f1 = {f1s[best_c]}")
 
+c_array = []
+f1_array = []
+
+for c in np.arange(0, 1, 0.05):
+    c_array.append(c)
+    f1_array.append(utils.evaluate(tx_train_test, w, y_train_test, c=c))
+plt.scatter(c_array, f1_array, c='r')
+plt.show()
 
 # generate submission testing data
 #for c in cs:
