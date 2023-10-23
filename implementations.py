@@ -61,12 +61,35 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     return loss, w
 
 def least_squares(y, tx):
+    """Calculate the least.
+
+    Calculate the least squares solution.
+       returns mse, and optimal weights.
+
+    Args:
+        y: numpy array of shape (N,), N is the number of samples.
+        tx: numpy array of shape (N,D), D is the number of features.
+
+    Returns:
+        w: optimal weights, numpy array of shape(D,), D is the number of features.
+        mse: scalar.
+    """
     w_opt = np.linalg.solve(tx.T @ tx, tx.T@y)
     _, loss = compute_MSE_gradient_and_loss(y, tx, w_opt)
     return loss, w_opt
 
 
 def ridge_regression(y, tx, lambda_):
+    """implement ridge regression.
+
+    Args:
+        y: numpy array of shape (N,), N is the number of samples.
+        tx: numpy array of shape (N,D), D is the number of features.
+        lambda_: scalar.
+
+    Returns:
+        w: optimal weights, numpy array of shape(D,), D is the number of features.
+    """
     N = y.shape[0]
     d = tx.shape[1]
     w_opt = np.linalg.inv(tx.T @ tx + (lambda_ * 2 * N) * np.identity(d)) @ tx.T @ y
@@ -87,7 +110,6 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     return loss, w
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
-    
     
     w = initial_w
 
@@ -149,9 +171,9 @@ def reg_logistic_regression_adam(y, tx, lambda_, initial_w, max_iters, gamma, ba
 
         w = w - gamma * m_hat / (np.sqrt(v_hat) + 1e-8)
 
-        #if n_iter % 10 == 0:
-        #    _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
-        #    print(f"iter {n_iter} : loss = {loss}")
+        if n_iter % 50 == 0:
+            _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
+            print(f"iter {n_iter} : loss = {loss}")
 
     _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
 
@@ -199,6 +221,14 @@ def compute_cross_entropy_gradient_and_loss(y, tx, w):
     return gradient, loss
 
 def sigmoid(x):
+    """apply sigmoid function on x.
+
+    Args:
+        x: scalar or numpy array
+
+    Returns:
+        scalar or numpy array
+    """
     #return 1. / (1. + np.exp(-x))
     return 0.5 * (1.0 + np.tanh(0.5 * x))
 
