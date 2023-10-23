@@ -8,7 +8,7 @@ import numpy as np
 
 """
     THINGS WE CAN DO: (TODO)
-    - devise optimal feature choice and processing (consider removing features with very small weight associated) maybe add some features
+    - devise optimal feature choice and processing (consider removing fgeatures with very small weight associated) maybe add some features
     - automatically find optimal lambda, learning rates, etc. 
     - rewrite least_squares using np.linalg.solve (and maybe also ridge_regression)
     - find the optimal c with gradient descent or binary search
@@ -93,7 +93,8 @@ initial_w = np.zeros(d)
 loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, 3e-08, initial_w, 20000, 0.0005, 2048, 0.9, 0.999)
 
 #print(f"Loss -> {loss}")
-#print(f"final w : {w}")
+print(f"\n\n=============================== OBTAINED WEIGHTS ===============================\n\n")
+print(f"{w}\n\n")
 
 #training accuracy
 cs = [0.1, 0.2, 0.25, 0.3, 0.4]
