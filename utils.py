@@ -126,6 +126,18 @@ def build_poly(x, degree, bias=True):
 
     #easy first step : 1 column, then all xi's, then all xi²'s
 
+    """Idea for the proper poly
+        We want to find all possible choices with replacement of k elements of [1, ..., d], for k = 1, ..., degree.
+        Then, a polyfeature would be the sum of the k elements of one of those choices.
+        if features = [x, y, z], 
+        k = 1 -> [x, y, z] -> 3 * 1 choices
+        k = 2 -> [x², y², z², xy, xz, yz] 
+        k = 3 -> [x³, x²y, x²z, y³, y²x, y²z, z³, z²x, z²y, xyz]
+
+        maybe pascal's triangle would help. not sure at all actually
+
+    """
+
     N = x.shape[0]
     to_concat = []
     if(bias):

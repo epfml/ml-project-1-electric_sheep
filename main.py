@@ -4,7 +4,6 @@ import implementations
 import matplotlib.pyplot as plt
 
 import numpy as np
-import sys
 #np.set_printoptions(threshold=sys.maxsize)
 
 """
@@ -47,8 +46,8 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
     x_train_path="dataset/x_train.csv", 
     y_train_path="dataset/y_train.csv", 
     x_test_path="dataset/x_test.csv", 
-    max_rows_train=150000, 
-    max_rows_test=None, 
+    max_rows_train=10000, 
+    max_rows_test=10, 
     x_features=x_features
 )
 
@@ -87,10 +86,11 @@ d = tx_train_train.shape[1]
 initial_w = np.zeros(d)
 #loss, w = implementations.reg_logistic_regression(y_train_train, tx_train_train, 0, initial_w, 2000, 0.3)
 #loss, w = implementations.reg_logistic_regression_sgd(y_train_train, tx_train_train, 0, initial_w, 20000, 0.3, 1024, 0.7)
-loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, 0, initial_w, 50000, 0.0001, 2048, 0.9, 0.999)
+loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, 0, initial_w, 5000, 0.0001, 2048, 0.9, 0.999)
 
 #print(f"Loss -> {loss}")
-#print(f"final w : {w}")
+print(f"\n\n=============================== OBTAINED WEIGHTS ===============================\n\n")
+print(f"{w}\n\n")
 
 #training accuracy
 cs = [0.1, 0.2, 0.25, 0.3, 0.4]
@@ -121,7 +121,7 @@ f1_array = []
 for c in np.arange(0, 1, 0.05):
     c_array.append(c)
     f1_array.append(utils.evaluate(tx_train_test, w, y_train_test, c=c))
-plt.scatter(c_array, f1_array, c='r')
+plt.plot(c_array, f1_array, c='r')
 plt.show()
 
 # generate submission testing data
