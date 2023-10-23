@@ -17,8 +17,8 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
     x_train_path="dataset/x_train.csv", 
     y_train_path="dataset/y_train.csv", 
     x_test_path="dataset/x_test.csv", 
-    max_rows_train=200, 
-    max_rows_test=10, 
+    max_rows_train=60000, 
+    max_rows_test=None, 
     x_features=x_features
 )
 
@@ -37,8 +37,8 @@ def all_x_processing(x, categoricals, degree):
 N_train = x_train.shape[0]
 ratio = 0.8
 
-degrees = [3, 5, 6, 7, 9, 12]
-lambdas = [0, 1e-8, 1e-7, 1e-6, 1e-4]
+degrees = [7, 8, 9, 10, 11, 12]
+lambdas = [0, 1e-9, 1e-8, 1e-7]
 print("Degree/Lambda    0       1e-8    1-e-7   1-e6    1e-4")
 results = [] # stores pairs (w, f1)
 for degree in degrees:
@@ -58,7 +58,7 @@ for degree in degrees:
 
         #train by calling the right function
         initial_w = np.zeros(d)
-        loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, lambda_, initial_w, 1000, 0.0001, 512, 0.9, 0.999)
+        loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, lambda_, initial_w, 30000, 0.0001, 4096, 0.9, 0.999)
 
         #testing accuracy
         optimal_c, optimal_f1 = utils.find_optimal_c(tx_train_test, y_train_test, w)
