@@ -46,17 +46,21 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
     x_train_path="dataset/x_train.csv", 
     y_train_path="dataset/y_train.csv", 
     x_test_path="dataset/x_test.csv", 
-    max_rows_train=10000, 
-    max_rows_test=10, 
+    max_rows_train=None,
+    max_rows_test=None, 
     x_features=x_features
 )
+
+indices = np.random.permutation(x_train.shape[0])[:40000]
+x_train = x_train[indices]
+y_train = y_train[indices]
 
 # Data Processing #NOTE idea: if there's a lot of data processing, we could do it once and save it to a new .csv file, and use this as dataset to train faster
 def all_x_processing(x, c):
 
     x_scalar = x[:, ~c]
     x_scalar = utils.replace_missing_features_with_mean(x_scalar)
-    tx_scalar = utils.build_poly(x_scalar, 6)
+    tx_scalar = utils.build_poly(x_scalar, 9)
     tx_scalar[:, 1:] = utils.normalize(tx_scalar[:, 1:]) # we shouldn't normalize the first column (1 vector)
 
     x_categorical = x[:, c]
@@ -86,7 +90,7 @@ d = tx_train_train.shape[1]
 initial_w = np.zeros(d)
 #loss, w = implementations.reg_logistic_regression(y_train_train, tx_train_train, 0, initial_w, 2000, 0.3)
 #loss, w = implementations.reg_logistic_regression_sgd(y_train_train, tx_train_train, 0, initial_w, 20000, 0.3, 1024, 0.7)
-loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, 0, initial_w, 5000, 0.0001, 2048, 0.9, 0.999)
+loss, w = implementations.reg_logistic_regression_adam(y_train_train, tx_train_train, 3e-08, initial_w, 20000, 0.0005, 2048, 0.9, 0.999)
 
 #print(f"Loss -> {loss}")
 #print(f"final w : {w}")
@@ -114,14 +118,14 @@ for c in cs:
 best_c = np.argmax(f1s)
 print(f"Best cutoff c : {cs[best_c]}, yields f1 = {f1s[best_c]}")
 
-c_array = []
-f1_array = []
-
-for c in np.arange(0, 1, 0.05):
-    c_array.append(c)
-    f1_array.append(utils.evaluate(tx_train_test, w, y_train_test, c=c))
-plt.plot(c_array, f1_array, c='r')
-plt.show()
+#c_array = []
+#f1_array = []
+#
+#for c in np.arange(0, 1, 0.05):
+#    c_array.append(c)
+#    f1_array.append(utils.evaluate(tx_train_test, w, y_train_test, c=c))
+#plt.plot(c_array, f1_array, c='r')
+#plt.show()
 
 # generate submission testing data
 #for c in cs:
