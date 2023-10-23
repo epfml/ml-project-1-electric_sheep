@@ -9,7 +9,7 @@ import sys
 
 """
     THINGS WE CAN DO: (TODO)
-    - devise optimal feature choice and processing (consider removing features with very small weight associated) maybe add some features
+    - devise optimal feature choice and processing (consider removing fgeatures with very small weight associated) maybe add some features
     - automatically find optimal lambda, learning rates, etc. 
     - rewrite least_squares using np.linalg.solve (and maybe also ridge_regression)
     - find the optimal c with gradient descent or binary search
