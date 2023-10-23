@@ -131,7 +131,6 @@ plt.show()
 #    test_predictions = test_predictions * 2 - 1 # should now be between -1 and 1 as desired
 #    utils.create_csv_submission(test_ids, test_predictions, f"optimal_submission.csv")
 
-optimal_c, optimal_f1 = utils.find_optimal_c(tx_train_test, y_train_test, w)
 print(f"\n\n========Found Optimal c = {optimal_c}, yielding f1 {optimal_f1}========\n")
 test_predictions = implementations.logistic_predict(tx_test, w, c=optimal_c) # should be y values between 0 and 1
 test_predictions = test_predictions * 2 - 1 # should now be between -1 and 1 as desired
