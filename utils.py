@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 import csv
 
-import implementations
+import ml_methods
 
 #===========================Data Pre-Processing===========================#
 
@@ -11,11 +11,11 @@ import implementations
 def load_data(x_train_path=None, y_train_path=None, x_test_path=None, max_rows_train=None, max_rows_test=None, x_features=None):
     """
     This function loads the data and returns the respectinve numpy arrays.
-    Remember to put the 3 files in the same folder and to not change the names of the files.
 
     Args:
-        data_path (str): datafolder path
-        sub_sample (bool, optional): If True the data will be subsempled. Default to False.
+        x_train_path, y_train_path, x_test_path (str): datafolder paths to the three datasets
+        max_rows_train, max_rows_test : (int) The amount of rows we read in the train and test datasets
+        x_features : (array[int]) The index of the columns we read in the file, i.e. the features we use
 
     Returns:
         x_train (np.array): training data
@@ -34,11 +34,19 @@ def load_data(x_train_path=None, y_train_path=None, x_test_path=None, max_rows_t
     ) if y_train_path is not None else None
 
     x_train = np.genfromtxt(
-        x_train_path, delimiter=",", skip_header=1, max_rows=max_rows_train, usecols=x_features
+        x_train_path, 
+        delimiter=",", 
+        skip_header=1, 
+        max_rows=max_rows_train, 
+        usecols=x_features
     ) if x_train_path is not None else None
 
     x_test = np.genfromtxt(
-        x_test_path, delimiter=",", skip_header=1, max_rows=max_rows_test, usecols=x_features
+        x_test_path, 
+        delimiter=",", 
+        skip_header=1, 
+        max_rows=max_rows_test, 
+        usecols=x_features
     ) if x_test_path is not None else None
 
     train_ids = x_train[:, 0].astype(dtype=int) if x_train_path is not None else None
@@ -46,7 +54,7 @@ def load_data(x_train_path=None, y_train_path=None, x_test_path=None, max_rows_t
     x_train = x_train[:, 1:] if x_train_path is not None else None
     x_test = x_test[:, 1:] if x_test_path is not None else None
 
-    y_train = (y_train + 1) / 2 # put y between 0 and 1 (TODO : why did they put it between -1 and 1?)
+    y_train = (y_train + 1) / 2 # put y between 0 and 1
 
     return x_train, x_test, y_train, train_ids, test_ids
 
@@ -88,10 +96,14 @@ def normalize(x):
     return (x - np.mean(x, axis=0)) / np.std(x, axis=0)
 
 def rows_with_all_features(x):
+    """Finds the rows with all features non nan in x
+    """
     missing_elems = np.isnan(x)
     return np.logical_not(missing_elems.any(axis=1))
 
 def remove_rows_with_missing_features(x, y):
+    """Remove rows with at least one missing features in x and y, i.e. returns new x and y's without those rows
+    """
 
     full_rows = rows_with_all_features(x)
     x = x[full_rows]
@@ -100,6 +112,8 @@ def remove_rows_with_missing_features(x, y):
     return x,y
 
 def replace_missing_features_with_mean(x):
+    """Replace all nan values in x with the mean of their column
+    """
     return np.nan_to_num(x, nan=np.nanmean(x, axis=0))
 
 
@@ -111,31 +125,7 @@ def build_poly(x, degree, bias=True):
         degree: integer.
 
     Returns:
-        poly: numpy array of shape (N, d'), where d' is the total number of polynomial features.
-        for example, with d=2, degree = 2, we have 1, f1, f2, f1 * f2, f1², f2², so 6 features
-    
-    NOTE : We need to find a general way of finding all the possible combinations for all degree and d.
-    NOTE : this function should have the advantage of handling the 1 column vector by setting degree=1
-    """
-
-
-    # we want to build an N * d array [[0,...,d], ..., [0,...,d]] to broadcast power it with x
-    #exponents = np.arange(0, degree + 1)
-
-    #return x.reshape((N, 1)) ** exponents.reshape((1, degree + 1))
-
-    #easy first step : 1 column, then all xi's, then all xi²'s
-
-    """Idea for the proper poly
-        We want to find all possible choices with replacement of k elements of [1, ..., d], for k = 1, ..., degree.
-        Then, a polyfeature would be the sum of the k elements of one of those choices.
-        if features = [x, y, z], 
-        k = 1 -> [x, y, z] -> 3 * 1 choices
-        k = 2 -> [x², y², z², xy, xz, yz] 
-        k = 3 -> [x³, x²y, x²z, y³, y²x, y²z, z³, z²x, z²y, xyz]
-
-        maybe pascal's triangle would help. not sure at all actually
-
+        numpy array of shape (N, d'), where d' is the total number of expanded features.
     """
 
     N = x.shape[0]
@@ -147,70 +137,15 @@ def build_poly(x, degree, bias=True):
 
     return np.concatenate(to_concat, axis=1)
 
-def feature_specific_processing(x):
-    # 27, 28: replace 88 with 0, ignore higher than 30
-    print(f"x before = {x}")
-    x[:,0:2][x[:,0:2]==88] = 0
-    x[:,0:2][x[:,0:2] > 30] = np.nan
-    print(f"x after = {x}")
-    return x
 
-def one_hot_encoding_old(x):
-    """
-        Args:
-            x: Numpy array of shape (N, d) with some categorical features, can contain NaN values
-            c: Numpy array of shape (d,) with boolean values encoding which feature is categorical
-        Returns:
-            A numpy array of shape (N, d'), where each of the categorical feature was converted to one-hot encoding
-    """
-
-    """ how to do more dimensions?
-    Say x = [[1, 2], [2, 0]]
-    We want [ [0 1 0 0 0 1] , [0 0 1 1 0 0] ]
-    
-    """
-    # we need a cumulative sum thing : cat_counts=[2, 3, 3, 2] -> [0, 2, 5, 8]
-    # with this we could do z[cat_x + cum_cat_counts] = 1
-    # here cat_x + cum_cat_counts = [[1, 2], [2, 0]] + [0, 3] = [[1, 5], [2, 3]]
-    # and z[above] = [[0 1 0 0 0 1], [0 0 1 1 0 0]] -> CORRECT!
-
-    if x.shape[1] == 0:
-        return x
-
-    N = x.shape[0]
-    # we assume x only contains categorical features
-    x = np.nan_to_num(x, nan=0)
-    x = x.astype('int32')
-    cat_counts = np.nanmax(x, axis=0)+1 # cat_counts is a (d,) shaped array with the max value for each feature
-    d_prime = np.sum(cat_counts, dtype=np.int32)
-    print(f"N = {N}, d_prime = {d_prime}")
-    z = np.zeros((N, d_prime))
-    # we don't want to substract the first, we want to slide everything : [1, 3, 2] -> [1, 4, 6] -> [0, 1, 4]
-    cum_cat_counts = np.roll(np.cumsum(cat_counts), 1)
-    cum_cat_counts[0] = 0
-    indexes = x + cum_cat_counts
-    z[np.arange(N), indexes.T] = 1
-
-    return z
 
 def one_hot_encoding(x):
     """
         Args:
             x: Numpy array of shape (N, d) with some categorical features, can contain NaN values
-            c: Numpy array of shape (d,) with boolean values encoding which feature is categorical
         Returns:
             A numpy array of shape (N, d'), where each of the categorical feature was converted to one-hot encoding
     """
-
-    """ how to do more dimensions?
-    Say x = [[1, 3], [2, 0], [0, 3]]
-    We want [ [0 1 0 0 1] , [0 0 1 1 0], [1 0 0 0 1]] : notice the second features only has 2 one-hot features, because it has only 2 possible values
-    
-    """
-    # we need a cumulative sum thing : cat_counts=[2, 3, 3, 2] -> [0, 2, 5, 8]
-    # with this we could do z[cat_x + cum_cat_counts] = 1
-    # here cat_x + cum_cat_counts = [[1, 2], [2, 0]] + [0, 3] = [[1, 5], [2, 3]]
-    # and z[above] = [[0 1 0 0 0 1], [0 0 1 1 0 0]] -> CORRECT!
 
     if x.shape[1] == 0:
         return x
@@ -239,6 +174,11 @@ def one_hot_encoding(x):
     return z
 
 def split_data(ratio, tx, y):
+    """Splits tx and y in 2 according to ratio.
+    This is used for validation.
+    The train sets contain a fraction ratio of the original data,
+    and the test set contain a fraction (1- ratio) of it.
+    """
 
     split = int(np.floor(ratio * tx.shape[0]))
     tx_test = tx[split:]
@@ -250,10 +190,14 @@ def split_data(ratio, tx, y):
 
 
 #==========================Evaluating==========================#
-def evaluate(tx, w, y, c=0.5, print_=True):
 
+def evaluate(tx, w, y, c=0.5, print_=True):
+    """
+    Computes, and potentially displays, the validation results.
+    The metric of choice is the f1-score, giving a balanced importance to the true positive and the true negatives.
+    """
     N = tx.shape[0]
-    y_pred = implementations.logistic_predict(tx, w, c)
+    y_pred = ml_methods.logistic_predict(tx, w, c)
 
     correct = y_pred == y
     pos = y_pred == 1
@@ -269,34 +213,48 @@ def evaluate(tx, w, y, c=0.5, print_=True):
 
     f1 = 2 * tp / (2 * tp + fp + fn)
 
-    #pos_true = y.sum()
-
-    #print(f"predictions = {y_pred}")
-    #print(f"and y was : {y}")
     if print_:
         print(f"    {N - correct.sum()} errors for {N} samples")
         print(f"    Accuracy : {100. * accuracy}%")
         print(f"    F1 : {f1}")
-    #print(f"y 1 count was {pos_true}, so predicting only 0 yields {100. * (1. - pos_true / N)}% accuracy")
 
     return f1
 
+
+
 def find_optimal_c(tx, y, w):
-    c = 0.5
-    d = 0.25
+    """
+    Finds the optimal cutoff parameter to be used in the logistic regression prediction.
+    Logistic regression predicts probabilities, and the prediction process decides whether to predict 1 or 0 according to those probabilities.
+    We predict using a cut-off between 0 and 1, and predict 1 if the probability is higher than the cut-off.
+    In order to maximise the f1-score, the optimal cut-off, isn't always 0.5 (which maximises the accuracy).
+    Assuming the f1-score is concave in the cut-off and approximately smooth, we find the optimal one using a simple 1-D gradient ascent,
+    combined with a simple grid search approach.
+    """
+    c = 0.2
+    lr = 0.02
+    d = 0.05
     best_f1 = evaluate(tx, w, y, c=c, print_=False)
 
-    #binary search algorithm
-    for i in range(20):
-        c_low = c - d
-        c_high = c + d
-        f1_low = evaluate(tx, w, y, c=c_low, print_=False)
-        f1_high = evaluate(tx, w, y, c=c_high, print_=False)
-        i = np.argmax([f1_low, best_f1, f1_high])
-        c = np.array([c_low, c, c_high])[i]
-        best_f1 = np.array([f1_low, best_f1, f1_high])[i]
-        d /= 2
+    # we use a crude gradient ascent using a numerical estimation of the gradient.
+    for _ in range(20):
+        c_prime = c + d
 
+        f1 = evaluate(tx, w, y, c=c, print_=False)
+        f1_prime = evaluate(tx, w, y, c=c_prime, print_=False)
+
+        gradient = (f1_prime - f1) / (c_prime - c)
+        old_c = c
+        c = c + lr * gradient
+        print(f"gradient = {gradient}, going from {old_c} to {c}")
+
+    for c_fine in np.arange(c - 0.02, c + 0.02, 0.001):
+        f1 = evaluate(tx, w, y, c=c_fine, print_=False)
+        if f1 > best_f1:
+            best_f1 = f1
+            c = c_fine
+
+    print(f"final best c : {c} yielding f1={best_f1}")
     return c, best_f1
 
 
@@ -311,6 +269,15 @@ def line_and_scatter_plot(y, tx, preds):
     plt.scatter(tx[:, 1], y, c='r')
     plt.scatter(tx[:, 1], preds, c='b')
     #plt.plot(tx[:, 1], preds)
+    plt.show()
+
+def plot_f1_to_c(tx_train_test, w, y_train_test, delta=0.01):
+    c_array = []
+    f1_array = []
+    for c in np.arange(0, 1, delta):
+        c_array.append(c)
+        f1_array.append(evaluate(tx_train_test, w, y_train_test, c=c, print_=False))
+    plt.plot(c_array, f1_array, c='r')
     plt.show()
 
 
