@@ -155,8 +155,8 @@ def reg_logistic_regression_sgd(y, tx, lambda_, initial_w, max_iters, gamma, bat
 def reg_logistic_regression_adam(y, tx, lambda_, initial_w, max_iters, gamma, batch_size, b1, b2):
     
     w = initial_w
-    m = initial_w
-    v = initial_w
+    m = np.zeros_like(w)
+    v = np.zeros_like(w)
 
     for n_iter in range(max_iters):
         batch_y, batch_tx = batch(y, tx, batch_size)

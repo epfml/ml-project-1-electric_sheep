@@ -99,6 +99,14 @@ def remove_rows_with_missing_features(x, y):
 
     return x,y
 
+def remove_rows_with_too_many_missing_features(x, y, f=0.5):
+    """
+    Removes the rows for which the fraction of nan features is bigger than f
+    """
+    indices_to_keep = ((x == np.nan).sum(axis=1) / x.shape[1]) <= f
+    return x[indices_to_keep], y[indices_to_keep]
+    
+
 def replace_missing_features_with_mean(x):
     return np.nan_to_num(x, nan=np.nanmean(x, axis=0))
 
