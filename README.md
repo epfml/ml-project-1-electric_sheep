@@ -1,1 +1,9 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/U9FTc9i_)
+general information
+team 
+project structure
+explain the python files,
+the data processing thing,
+the model, 
+the results.
+
+# ismail i dont know please fill

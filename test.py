@@ -132,14 +132,10 @@ def run_all_tests():
     test_mean_squared_error_gd_or_sgd(stochastic=True)
     test_least_squares()
     test_ridge_regression()
+    test_replace_missing_features_with_mean()
+    test_one_hot_encoding()
 
     print("-> All test passed!!")
 
 
-
-#run_all_tests()
-
-test_least_squares()
-#test_ridge_regression()
-#test_replace_missing_features_with_mean()
-#test_one_hot_encoding()
+run_all_tests()

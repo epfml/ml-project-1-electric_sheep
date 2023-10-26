@@ -228,48 +228,25 @@ def find_optimal_c(tx, y, w):
     Logistic regression predicts probabilities, and the prediction process decides whether to predict 1 or 0 according to those probabilities.
     We predict using a cut-off between 0 and 1, and predict 1 if the probability is higher than the cut-off.
     In order to maximise the f1-score, the optimal cut-off, isn't always 0.5 (which maximises the accuracy).
-    Assuming the f1-score is concave in the cut-off and approximately smooth, we find the optimal one using a simple 1-D gradient ascent,
-    combined with a simple grid search approach.
+    Assuming the f1-score is concave in the cut-off and approximately smooth, we find the optimal one with a simple grid search approach.
+    We empirically found that the optimal cut-off is almost always between 0.1 and 0.3, so we only consider those values.
     """
-    c = 0.2
-    lr = 0.02
-    d = 0.05
-    best_f1 = evaluate(tx, w, y, c=c, print_=False)
 
-    # we use a crude gradient ascent using a numerical estimation of the gradient.
-    for _ in range(20):
-        c_prime = c + d
-
+    best_f1 = 0
+    best_c = 0
+    for c in np.arange(0.1, 0.3, 0.001):
         f1 = evaluate(tx, w, y, c=c, print_=False)
-        f1_prime = evaluate(tx, w, y, c=c_prime, print_=False)
-
-        gradient = (f1_prime - f1) / (c_prime - c)
-        old_c = c
-        c = c + lr * gradient
-        print(f"gradient = {gradient}, going from {old_c} to {c}")
-
-    for c_fine in np.arange(c - 0.02, c + 0.02, 0.001):
-        f1 = evaluate(tx, w, y, c=c_fine, print_=False)
         if f1 > best_f1:
             best_f1 = f1
-            c = c_fine
+            best_c = c
 
-    print(f"final best c : {c} yielding f1={best_f1}")
-    return c, best_f1
+    print(f"final best c : {best_c} yielding f1={best_f1}")
+    return best_c, best_f1
 
 
 #==========================Plotting==========================#
-def scatter_plot():
-    ...
 
-def line_plot():
-    ...
 
-def line_and_scatter_plot(y, tx, preds):
-    plt.scatter(tx[:, 1], y, c='r')
-    plt.scatter(tx[:, 1], preds, c='b')
-    #plt.plot(tx[:, 1], preds)
-    plt.show()
 
 def plot_f1_to_c(tx_train_test, w, y_train_test, delta=0.01):
     c_array = []
