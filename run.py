@@ -9,10 +9,10 @@ np.set_printoptions(threshold=sys.maxsize)
 
 #=================================HYPER PARAMETERS=================================#
 N_train = 150000
-iters = 20000
+iters = 40000
 lambda_ = 1e-7
-degree = 10
-learning_rate = 0.0002
+degree = 9
+learning_rate = 0.0001
 batch_size = 2048
 
 
@@ -34,11 +34,6 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
     max_rows_test=None, 
     x_features=x_features
 )
-
-print(f"before : x, y = {x_train.shape}, {y_train.shape}")
-x_train, y_train = utils.remove_rows_with_too_many_missing_features(x_train, y_train, 0.6)
-print(f"after : x, y = {x_train.shape}, {y_train.shape}")
-N_train = x_train.shape[0]
 
 
 

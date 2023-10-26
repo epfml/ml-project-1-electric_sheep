@@ -1,4 +1,3 @@
 * readme (ismail finish missing stuff)
-* ismail : finish report. notes : local tested performance
 * finish everything on the submission instruction. most importantly : reproducibility
-[* ismail : test the "remove rows with too much missing" stuff (if time)]
+[* maybe a word on the fact removing missing features didn't help. but actually probably not, since we're not supposed to explain what failed.]
