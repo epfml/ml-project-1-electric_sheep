@@ -115,7 +115,7 @@ def remove_rows_with_too_many_missing_features(x, y, f=0.5):
     """
     Removes the rows for which the fraction of nan features is bigger than f
     """
-    indices_to_keep = ((x == np.nan).sum(axis=1) / x.shape[1]) <= f
+    indices_to_keep = ((np.isnan(x)).sum(axis=1) / x.shape[1]) <= f
     return x[indices_to_keep], y[indices_to_keep]
     
 
@@ -187,7 +187,6 @@ def split_data(ratio, tx, y):
     The train sets contain a fraction ratio of the original data,
     and the test set contain a fraction (1- ratio) of it.
     """
-
     split = int(np.floor(ratio * tx.shape[0]))
     tx_test = tx[split:]
     y_test = y[split:]
@@ -239,7 +238,6 @@ def find_optimal_c(tx, y, w):
     Assuming the f1-score is concave in the cut-off and approximately smooth, we find the optimal one with a simple grid search approach.
     We empirically found that the optimal cut-off is almost always between 0.1 and 0.3, so we only consider those values.
     """
-
     best_f1 = 0
     best_c = 0
     for c in np.arange(0.1, 0.3, 0.001):

@@ -8,12 +8,12 @@ np.set_printoptions(threshold=sys.maxsize)
 
 
 #=================================HYPER PARAMETERS=================================#
-N_train = 10000
-iters = 400
+N_train = 150000
+iters = 20000
 lambda_ = 1e-7
-degree = 6
-learning_rate = 0.001
-batch_size = 512
+degree = 10
+learning_rate = 0.0002
+batch_size = 2048
 
 
 
@@ -31,9 +31,14 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
     y_train_path="dataset/y_train.csv", 
     x_test_path="dataset/x_test.csv", 
     max_rows_train=N_train, 
-    max_rows_test=10, 
+    max_rows_test=None, 
     x_features=x_features
 )
+
+print(f"before : x, y = {x_train.shape}, {y_train.shape}")
+x_train, y_train = utils.remove_rows_with_too_many_missing_features(x_train, y_train, 0.6)
+print(f"after : x, y = {x_train.shape}, {y_train.shape}")
+N_train = x_train.shape[0]
 
 
 
@@ -83,8 +88,3 @@ test_predictions = test_predictions * 2 - 1 # should now be between -1 and 1 as 
 #write to csv
 utils.create_csv_submission(test_ids, test_predictions, f"submission.csv")
 
-
-
-#to delete
-utils.plot_f1_to_c(tx_train_test, w, y_train_test, delta=0.001)
-print(f"optimal f1 = {optimal_f1}")

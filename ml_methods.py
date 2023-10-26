@@ -45,7 +45,7 @@ def reg_logistic_regression_adam(y, tx, lambda_, initial_w, max_iters, gamma, ba
 
         w = w - gamma * m_hat / (np.sqrt(v_hat) + 1e-8)
 
-        if n_iter % 5 == 0:
+        if n_iter % 50 == 0:
             _, loss = compute_cross_entropy_gradient_and_loss(y, tx, w)
             print(f"iter {n_iter} : loss = {loss}")
 
