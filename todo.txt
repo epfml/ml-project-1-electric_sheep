@@ -1,4 +1,3 @@
 * readme
-* ridge regression with np.solve
-* use the tests provided and test
-* 
+* ismail : finish report
+[* ismail : test the "remove rows with too much missing" stuff (if time)]
