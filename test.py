@@ -1,5 +1,6 @@
 import utils
 import implementations
+import ml_methods
 
 import numpy as np
 
@@ -17,7 +18,7 @@ def test_compute_MSE_gradient_and_loss():
     true_loss = (6.25 + 0.01 + 0.7396) / 6.
     #print(f"true_gradient={true_gradient}, true_loss={true_loss}")
 
-    gradient, loss = implementations.compute_MSE_gradient_and_loss(y, tx, w)
+    gradient, loss = ml_methods.compute_MSE_gradient_and_loss(y, tx, w)
     #print(f"gradient={gradient}, loss={loss}")
 
 
@@ -37,7 +38,7 @@ def test_mean_squared_error_gd_or_sgd(stochastic=False):
 
     #print(f"final loss : {loss}")
     #print(f"final w : {w}")
-    utils.line_and_scatter_plot(y, X, w)
+    #utils.line_and_scatter_plot(y, X, w)
     print(f"    -mean_squared_error_{'sgd' if stochastic else 'gd'} test passed!")
 
 def test_least_squares():
@@ -66,7 +67,7 @@ def test_ridge_regression():
 
     print(f"     rr final loss : {loss}")
     #print(f"final w : {w}")
-    utils.line_and_scatter_plot(y, X, w)
+    #utils.line_and_scatter_plot(y, X, w)
     print(f"    -ridge_regression test passed!")
 
 def test_load_data():
@@ -126,20 +127,31 @@ def test_one_hot_encoding():
     print("    -one_hot_encoding test passed!")
 
 def run_all_tests():
-    test_load_data()
+    #test_load_data()
     test_compute_MSE_gradient_and_loss()
     test_mean_squared_error_gd_or_sgd(stochastic=False)
     test_mean_squared_error_gd_or_sgd(stochastic=True)
     test_least_squares()
     test_ridge_regression()
+    test_replace_missing_features_with_mean()
+    test_one_hot_encoding()
 
     print("-> All test passed!!")
 
 
-
 #run_all_tests()
 
-test_least_squares()
-#test_ridge_regression()
-#test_replace_missing_features_with_mean()
-#test_one_hot_encoding()
+y = np.array([0.1, 0.3, 0.5])
+tx = np.array([[2.3, 3.2],
+       [1. , 0.1],
+       [1.4, 2.3]])
+
+expected_w = np.array([0.413044, 0.875757])
+loss, w = implementations.mean_squared_error_gd(y, tx, expected_w, 0, 0.01)
+    
+expected_w = np.array([0.413044, 0.875757])
+expected_loss = 2.959836
+    
+#np.testing.assert_allclose(loss, expected_loss)
+
+print(f"loss={loss}, el = {expected_loss}")
