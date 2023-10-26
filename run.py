@@ -11,6 +11,7 @@ np.set_printoptions(threshold=sys.maxsize)
 N_train = 10000
 iters = 400
 lambda_ = 1e-7
+degree = 6
 learning_rate = 0.001
 batch_size = 512
 
@@ -43,7 +44,7 @@ x = np.concatenate((x_train, x_test), axis=0)
 
 x_scalar = x[:, ~c]
 x_scalar = utils.replace_missing_features_with_mean(x_scalar)
-tx_scalar = utils.build_poly(x_scalar, 6)
+tx_scalar = utils.build_poly(x_scalar, degree)
 tx_scalar[:, 1:] = utils.normalize(tx_scalar[:, 1:]) # we shouldn't normalize the first column (1 vector)
 
 x_categorical = x[:, c]

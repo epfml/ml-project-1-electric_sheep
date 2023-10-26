@@ -245,12 +245,10 @@ def find_optimal_c(tx, y, w):
 
 
 #==========================Plotting==========================#
-
-
-"""
-Draws a simple plot to see how the f1-score changes with the cut-off c
-"""
 def plot_f1_to_c(tx_train_test, w, y_train_test, delta=0.01):
+    """
+    Draws a simple plot to see how the f1-score changes with the cut-off c
+    """
     c_array = []
     f1_array = []
     for c in np.arange(0, 1, delta):
@@ -266,7 +264,6 @@ def generate_linear_data_with_gaussian_noise(N, d) :
     Small util used to test functions with random data
     """
     transform = np.random.rand((d)) * 2 - 1 # linear function mapping a d long feature vector on a number
-    #print(f"transform = {transform}")
 
     X_f = 10.0
     X = np.random.normal(size=(N, d)) * X_f
