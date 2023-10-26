@@ -26,7 +26,7 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
 
     _, loss = ml_methods.compute_MSE_gradient_and_loss(y, tx, w)
 
-    return loss, w
+    return w, loss
 
 
 def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
@@ -43,19 +43,17 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
         loss: the loss value (scalar) corresponding to the w obtained after the last iteration
         w: numpy array of shape=(d,) (the same as initial_w). The final weight vector obtained after the last training iteration
     """
-
+    N = tx.shape[0]
     w = initial_w
 
-    for n_iter in range(max_iters):
-        n = np.random.randint(n)
+    for _ in range(max_iters):
+        n = np.random.randint(N)
         gradient, loss = ml_methods.compute_MSE_gradient_and_loss(y[[n]], tx[[n]], w)
         w = w - gamma * gradient
 
-        print(f"iter {n_iter} : loss = {loss}")
-
     _, loss = ml_methods.compute_MSE_gradient_and_loss(y, tx, w)
 
-    return loss, w
+    return w, loss
 
 def least_squares(y, tx):
     """ Calculate the least squares solution.
@@ -71,7 +69,7 @@ def least_squares(y, tx):
 
     w_opt = np.linalg.solve(tx.T @ tx, tx.T@y)
     _, loss = ml_methods.compute_MSE_gradient_and_loss(y, tx, w_opt)
-    return loss, w_opt
+    return w_opt, loss
 
 
 def ridge_regression(y, tx, lambda_):
@@ -89,7 +87,7 @@ def ridge_regression(y, tx, lambda_):
     d = tx.shape[1]
     w_opt = np.linalg.solve(tx.T @ tx + (lambda_ * 2 * N) * np.identity(d), tx.T @ y)
     _, loss = ml_methods.compute_MSE_gradient_and_loss(y, tx, w_opt)
-    return loss, w_opt
+    return w_opt, loss
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
     """ implements the logistic regression classification method, with gradient descent optimisation.
@@ -110,7 +108,7 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
 
     _, loss = ml_methods.compute_cross_entropy_gradient_and_loss(y, tx, w)
 
-    return loss, w
+    return w, loss
 
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
@@ -135,7 +133,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
 
     _, loss = ml_methods.compute_cross_entropy_gradient_and_loss(y, tx, w)
 
-    return loss, w
+    return w, loss
 
 
 

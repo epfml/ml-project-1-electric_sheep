@@ -1,0 +1,4 @@
+* readme
+* ridge regression with np.solve
+* use the tests provided and test
+* 
