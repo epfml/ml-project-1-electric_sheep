@@ -1,6 +1,5 @@
 import utils
 import implementations
-import weights
 
 import matplotlib.pyplot as plt
 
