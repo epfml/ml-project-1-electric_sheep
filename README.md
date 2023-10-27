@@ -14,6 +14,13 @@ Transform the output of the model to prediction labels.
 Split the data to the training/test dataset and evaluate the performance of the model.
 
 ## Files:
+
+### run.py
+Execution Program of the system
+
+### test.py
+Testing file
+
 ### implementations.py
 Functions of implemented basic algorithms: 
 * **mean_squared_error_gd**
@@ -22,10 +29,6 @@ Functions of implemented basic algorithms:
 * **logistic_regression**
 * **reg_logistic_regression**
 
-### run.py
-Execution Program of the system
-### test.py
-Testing file
 ### utils.py
 Input and output:
 * **load_data**: loading data from the given dataset
