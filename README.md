@@ -1,7 +1,9 @@
 # Project 1: CVD prediction 
-## Team
+## Team:
 Authors: Ismail Sahbane(Computer Science), Yanruiqi Yang(Management of Technology), Ameer Elkhayat(Neuro-X)
-## Project Structure
+
+
+## Project Structure:
 ### Data Preprocessing 
 Filtering data, Feature generation, Cleaning missing data, etc.
 ### Training and Optimization
@@ -26,15 +28,15 @@ Testing file
 ### utils.py
 ### ml_methods.py
 
-## Data Processing 
+## Data Processing: 
 ### Scalar Data:
 fill_na (with mean), normalization, build the polynomial predictors
 ### Categorical Data:
 One-hot-encoding
 
-## Training Model
+## Training Model:
 Logistic regression with ADAM-optimizer SGD
 
-## Results
+## Results:
 Our highest F-score is 0.445, with submission ID #240035 on Aicrowd.
 
