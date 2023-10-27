@@ -19,7 +19,7 @@ Split the data to the training/test dataset and evaluate the performance of the 
 Execution Program of the system
 
 ### test.py
-Testing file
+Test file
 
 ### implementations.py
 Functions of implemented basic algorithms: 
