@@ -31,7 +31,7 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
     y_train_path="dataset/y_train.csv", 
     x_test_path="dataset/x_test.csv", 
     max_rows_train=N_train, 
-    max_rows_test=10, 
+    max_rows_test=None, 
     x_features=x_features
 )
 
