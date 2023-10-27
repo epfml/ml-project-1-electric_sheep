@@ -39,6 +39,8 @@ Data processing:
 * **replace_missing_features_with_mean**: replace all nan values in x with the mean of their column
 * **build_poly**: construct the polynomial predictor for a feature
 * **one_hot_encoding**: generate one-hot-encoding features for a categorical feature
+  
+Testing and Validation:
 * **split_data**: split the dataset to training/test data, given a split ratio
 * **evaluate**: compute and display the validation results, with the metric F1-score
 * **find_optimal_c**: find the optimal c to predict the labels
