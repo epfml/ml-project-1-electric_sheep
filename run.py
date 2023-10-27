@@ -10,7 +10,7 @@ np.set_printoptions(threshold=sys.maxsize)
 #=================================HYPER PARAMETERS=================================#
 N_train = 150000
 iters = 40000
-lambda_ = 1e-7
+lambda_ = 1e-3
 degree = 9
 learning_rate = 0.0001
 batch_size = 2048
@@ -31,10 +31,9 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
     y_train_path="dataset/y_train.csv", 
     x_test_path="dataset/x_test.csv", 
     max_rows_train=N_train, 
-    max_rows_test=None, 
+    max_rows_test=10, 
     x_features=x_features
 )
-
 
 
 #=======================PERFORM ALL THE DATA PROCESSING=======================#
@@ -42,15 +41,17 @@ x_train, x_test, y_train, train_ids, test_ids = utils.load_data(
 #in order to have the same category set for all categorical features in training and testing, we need to combine them before processing
 x = np.concatenate((x_train, x_test), axis=0)
 
+# scalar specific processing
 x_scalar = x[:, ~c]
-x_scalar = utils.replace_missing_features_with_mean(x_scalar)
-tx_scalar = utils.build_poly(x_scalar, degree)
+x_scalar = utils.replace_missing_features_with_mean(x_scalar) # deal with nan values
+tx_scalar = utils.build_poly(x_scalar, degree) # polynomial feature expansion
 tx_scalar[:, 1:] = utils.normalize(tx_scalar[:, 1:]) # we shouldn't normalize the first column (1 vector)
 
+#categorical specific processing
 x_categorical = x[:, c]
-x_categorical = utils.one_hot_encoding(x_categorical)
+tx_categorical = utils.one_hot_encoding(x_categorical) # nice representation for categorical data
 
-tx = np.concatenate((tx_scalar, x_categorical), axis=1)
+tx = np.concatenate((tx_scalar, tx_categorical), axis=1)
 
 tx_train = tx[:N_train]
 tx_test = tx[N_train:]

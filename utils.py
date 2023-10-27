@@ -111,11 +111,13 @@ def remove_rows_with_missing_features(x, y):
 
     return x,y
 
-def remove_rows_with_too_many_missing_features(x, y, f=0.5):
+def remove_rows_with_too_many_missing_features(x, y, c, f=0.5):
     """
-    Removes the rows for which the fraction of nan features is bigger than f
+    Removes the rows for which the fraction of nan scalar features is bigger than f.
+    We do it only for scalar features, because nan categorical features, with the way we encode them,
+    don't incurr any statistical robustness cost, but only a performance one.
     """
-    indices_to_keep = ((np.isnan(x)).sum(axis=1) / x.shape[1]) <= f
+    indices_to_keep = ((np.isnan(x[:,~c])).sum(axis=1) / (~c).sum()) <= f
     return x[indices_to_keep], y[indices_to_keep]
     
 

@@ -2,24 +2,25 @@
 ## Team:
 Authors: Ismail Sahbane(Computer Science), Yanruiqi Yang(Management of Technology), Ameer Elkhayat(Neuro-X)
 
+This is a machine learning system trying to predict whether a given individual has a risk of developping a cardiovascular disease given their clinical and lifestyle habits. We present here the general structure of the codebase. 
 
 ## Project Structure:
 ### Data Preprocessing 
-Filtering data, Feature generation, Cleaning missing data, etc.
+Feature generation, Handling missing data, changing representation of categorical data, etc.
 ### Training and Optimization
 Optimize the weights to minimize the loss function.
 ### Prediction
 Transform the output of the model to prediction labels.
 ### Local Validation + Testing
-Split the data to the training/test dataset and evaluate the performance of the model.
+Split the data to the training/test dataset and evaluate the performance of the model and tune hyperparameters.
 
 ## Files:
 
 ### run.py
-Execution Program of the system
+Execution Program for the system
 
 ### test.py
-Test file
+Test file, with simple unit tests for certain functions
 
 ### implementations.py
 Functions of implemented basic algorithms: 
@@ -30,12 +31,13 @@ Functions of implemented basic algorithms:
 * **reg_logistic_regression**
 
 ### ml_methods.py
+Machine learning methods and computations for the CVD prediction part
 * **reg_logistic_regression_sgd**: logistic regression with general stochastic gradient descend method
 * **reg_logistic_regression_adam**: logistic regression with SGD method and Adam as the optimizer
-* **compute_MSE_gradient_and_loss**: computer the gradient and loss using Minimum Squared Error(MSE) as loss
-* **compute_cross_entropy_gradient_and_loss**: computer the gradient and loss using logistic loss
+* **compute_MSE_gradient_and_loss**: computes the gradient and loss using Minimum Squared Error(MSE) as loss
+* **compute_cross_entropy_gradient_and_loss**: computes the gradient and loss using logistic loss
 * **sigmoid**: sigmoid function 
-* **logistic_predict**: prediction function, map the output probability to a prediction label
+* **logistic_predict**: prediction function, map the output probability obtained with logistic regression to a prediction label
 * **batch**: function to generate batches for SGD
 
 ### utils.py
@@ -70,4 +72,6 @@ Logistic regression with ADAM-optimizer SGD
 
 ## Results:
 Our highest F-score is 0.445, with submission ID #240035 on Aicrowd.
+### Reproduction:
+To reproduce it, one can run the run.py file. It should output a .csv file with testing F1-Score close to the above. It may not be exactly the same due to the randomness involved in SGD.
 
