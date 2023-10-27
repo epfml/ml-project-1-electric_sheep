@@ -38,15 +38,6 @@ Functions of implemented basic algorithms:
 * **logistic_predict**: prediction function, map the output probability to a prediction label
 * **batch**: function to generate batches for SGD
 
-### ml_methods.py
-* **reg_logistic_regression_sgd**: logistic regression with general stochastic gradient descend method
-* **reg_logistic_regression_adam**: logistic regression with SGD method and Adam as the optimizer
-* **compute_MSE_gradient_and_loss**: computer the gradient and loss using Minimum Squared Error(MSE) as loss
-* **compute_cross_entropy_gradient_and_loss**: computer the gradient and loss using logistic loss
-* **sigmoid**: sigmoid function 
-* **logistic_predict**: prediction function, map the output probability to a prediction label
-* **batch**: function to generate batches for SGD
-
 ### utils.py
 Input and output:
 * **load_data**: loading data from the given dataset
