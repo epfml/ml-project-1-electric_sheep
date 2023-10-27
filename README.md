@@ -30,6 +30,7 @@ Testing file
 Input and output:
 * **load_data**: loading data from the given dataset
 * **create_csv_submission**: saving the output to file
+
 Data processing: 
 * **normalize**: normalize the data of a feature
 * **rows_with_all_features**: find the rows with all features non-nan
