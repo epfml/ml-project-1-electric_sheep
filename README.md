@@ -1,6 +1,6 @@
 # Project 1: CVD prediction 
 ## Team
-Authors: Ismail Sahbane, Yanruiqi Yang, Ameer Elkhayat
+Authors: Ismail Sahbane(Computer Science), Yanruiqi Yang(Management of Technology), Ameer Elkhayat(Neuro-X)
 ## Project Structure
 ### Data Preprocessing 
 Filtering data, Feature generation, Cleaning missing data, etc.
@@ -13,7 +13,12 @@ Split the data to the training/test dataset and evaluate the performance of the 
 
 ## Files:
 ### implementations.py
-Functions of Implemented basic algorithms: mean_squared_error_gd, mean_squared_error_sgd, least_squares ridge_regression, logistic_regression, reg_logistic_regression.
+Functions of implemented basic algorithms: 
+* mean_squared_error_gd 
+* mean_squared_error_sgd
+* least_squares ridge_regression
+* logistic_regression
+* reg_logistic_regression.
 ### run.py
 Execution Program of the system
 ### test.py
