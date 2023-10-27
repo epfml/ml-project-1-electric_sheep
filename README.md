@@ -1,30 +1,30 @@
-### Project 1: CVD prediction 
+# Project 1: CVD prediction 
 ## Team
 Authors: Ismail Sahbane, Yanruiqi Yang, Ameer Elkhayat
 ## Project Structure
-# Data Preprocessing 
+### Data Preprocessing 
 Filtering data, Feature generation, Cleaning missing data, etc.
-# Training and Optimization
+### Training and Optimization
 Optimize the weights to minimize the loss function.
-# Prediction
+### Prediction
 Transform the output of the model to prediction labels.
-# Local Validation + Testing
+### Local Validation + Testing
 Split the data to the training/test dataset and evaluate the performance of the model.
 
 ## Files:
-# implementations.py
-Functions of Implemented basic algorithms
-# run.py
+### implementations.py
+Functions of Implemented basic algorithms: mean_squared_error_gd, mean_squared_error_sgd, least_squares ridge_regression, logistic_regression, reg_logistic_regression.
+### run.py
 Execution Program of the system
-# test.py
+### test.py
 Testing file
-# utils.py
-# ml_methods.py
+### utils.py
+### ml_methods.py
 
 ## Data Processing 
-# Scalar Data:
+### Scalar Data:
 fill_na (with mean), normalization, build the polynomial predictors
-# Categorical Data:
+### Categorical Data:
 One-hot-encoding
 
 ## Training Model
