@@ -27,6 +27,13 @@ Execution Program of the system
 Testing file
 ### utils.py
 ### ml_methods.py
+* reg_logistic_regression_sgd
+* reg_logistic_regression_adam
+* compute_MSE_gradient_and_loss
+* compute_cross_entropy_gradient_and_loss
+* sigmoid
+* logistic_predict
+* batch
 
 ## Data Processing: 
 ### Scalar Data:
