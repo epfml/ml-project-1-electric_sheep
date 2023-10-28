@@ -1,8 +1,12 @@
 # Project 1: CVD prediction 
-## Team:
-Authors: Ismail Sahbane(Computer Science), Yanruiqi Yang(Management of Technology), Ameer Elkhayat(Neuro-X)
 
-This is a machine learning system trying to predict whether a given individual has a risk of developping a cardiovascular disease given their clinical and lifestyle habits. We present here the general structure of the codebase. 
+This is a machine learning system trying to predict whether a given individual has a risk of developing a cardiovascular disease given their clinical and lifestyle habits. We present here the general structure of the codebase. 
+
+## Team:
+Authors: 
+
+Ismail Sahbane(Computer Science), Yanruiqi Yang(Management of Technology), Ameer Elkhayat(Neuro-X)
+
 
 ## Project Structure:
 ### Data Preprocessing 
@@ -71,7 +75,7 @@ One-Hot-Encoding
 Logistic regression with ADAM-optimizer SGD
 
 ## Results:
-Our highest F-score is 0.445, with submission ID #240035 on Aicrowd.
+Our highest F-score is 0.447, with submission ID #242385 on Aicrowd.
 ### Reproduction:
 To reproduce it, one can run the run.py file. It should output a .csv file with testing F1-Score close to the above. It may not be exactly the same due to the randomness involved in SGD.
 
