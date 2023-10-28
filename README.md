@@ -3,7 +3,7 @@
 This is a machine learning system trying to predict whether a given individual has a risk of developing a cardiovascular disease given their clinical and lifestyle habits. We present here the general structure of the codebase. 
 
 ## Team:
-Authors: 
+**Authors**: 
 
 Ismail Sahbane(Computer Science), Yanruiqi Yang(Management of Technology), Ameer Elkhayat(Neuro-X)
 
